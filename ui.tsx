@@ -138,7 +138,7 @@ const cardVariants = cva('', {
         hover:shadow-lg hover:-translate-y-0.5
       `,
       elevated: `
-        bg-white rounded-2xl p-8 shadow-xl border-none
+        bg-white rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-xl border-none
       `,
       glass: `
         bg-white/70 backdrop-blur-xl rounded-xl p-6

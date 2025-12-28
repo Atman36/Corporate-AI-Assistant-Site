@@ -511,6 +511,15 @@
    ============================================ */
 
 @layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Fade in on scroll (use with IntersectionObserver) */
   .animate-fade-in {
     animation: fadeIn var(--duration-slow) var(--ease-out) forwards;

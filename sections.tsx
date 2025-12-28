@@ -39,12 +39,10 @@ import {
   Menu,
   X,
   AlertTriangle,
-  TrendingUp,
   Zap,
   Bot,
   Building2,
   Scale,
-  Briefcase,
   Factory,
   ShoppingCart,
   Plug,
@@ -84,6 +82,38 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close menu on escape key
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMenuOpen(false);
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  // Prevent body scroll when menu is open
+  React.useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setIsMenuOpen(false);
+      }
+    }
+  };
+
   return (
     <header
       className={`
@@ -94,13 +124,14 @@ export const Header: React.FC = () => {
           : 'bg-transparent'
         }
       `}
+      role="banner"
     >
       <Container>
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2" aria-label="CORPRAG — На главную">
             <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-accent-700 rounded-lg flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
+              <Bot className="w-5 h-5 text-white" aria-hidden="true" />
             </div>
             <span className="font-display font-bold text-xl text-primary-900">
               CORPRAG
@@ -108,11 +139,12 @@ export const Header: React.FC = () => {
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8" aria-label="Основная навигация">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => handleSmoothScroll(e, link.href)}
                 className="font-display text-sm font-medium text-primary-600 hover:text-primary-900 transition-colors"
               >
                 {link.label}
@@ -127,50 +159,60 @@ export const Header: React.FC = () => {
             </Button>
             <Button variant="accent" size="sm">
               Запросить демо
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Button>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 text-primary-700"
+            className="lg:hidden p-2 text-primary-700 min-w-[44px] min-h-[44px] flex items-center justify-center"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
           >
             {isMenuOpen ? (
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6" aria-hidden="true" />
             ) : (
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6" aria-hidden="true" />
             )}
           </button>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-neutral-200">
-            <nav className="flex flex-col gap-2">
+        {/* Mobile Menu with animation */}
+        <div
+          id="mobile-menu"
+          className={`
+            lg:hidden overflow-hidden transition-all duration-300 ease-out
+            ${isMenuOpen ? 'max-h-[calc(100vh-4rem)] opacity-100' : 'max-h-0 opacity-0'}
+          `}
+          aria-hidden={!isMenuOpen}
+        >
+          <div className="py-4 border-t border-neutral-200 bg-white/95 backdrop-blur-md">
+            <nav className="flex flex-col gap-1" aria-label="Мобильная навигация">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-2 font-display text-sm font-medium text-primary-700 hover:bg-primary-50 rounded-lg"
-                  onClick={() => setIsMenuOpen(false)}
+                  className="px-4 py-3 font-display text-base font-medium text-primary-700 hover:bg-primary-50 active:bg-primary-100 rounded-lg transition-colors min-h-[48px] flex items-center"
+                  onClick={(e) => handleSmoothScroll(e, link.href)}
+                  tabIndex={isMenuOpen ? 0 : -1}
                 >
                   {link.label}
                 </a>
               ))}
-              <div className="flex flex-col gap-2 mt-4 px-4">
-                <Button variant="outline" size="sm" className="w-full">
+              <div className="flex flex-col gap-3 mt-4 pt-4 px-4 border-t border-neutral-100">
+                <Button variant="outline" size="md" className="w-full justify-center min-h-[48px]">
                   Скачать PDF
                 </Button>
-                <Button variant="accent" size="sm" className="w-full">
+                <Button variant="accent" size="md" className="w-full justify-center min-h-[48px]">
                   Запросить демо
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </Button>
               </div>
             </nav>
           </div>
-        )}
+        </div>
       </Container>
     </header>
   );
@@ -182,86 +224,89 @@ export const Header: React.FC = () => {
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-hero py-20 lg:py-32">
+    <section className="relative overflow-hidden bg-gradient-hero py-16 sm:py-20 lg:py-32" aria-labelledby="hero-heading">
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-1/2 h-full opacity-30 pointer-events-none">
+      <div className="absolute top-0 right-0 w-1/2 h-full opacity-30 pointer-events-none" aria-hidden="true">
         <div className="absolute top-20 right-20 w-96 h-96 bg-accent-200 rounded-full blur-3xl" />
         <div className="absolute top-60 right-60 w-64 h-64 bg-primary-200 rounded-full blur-2xl" />
       </div>
       
       <Container className="relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
           {/* Left: Content */}
           <div className="max-w-xl">
-            <Badge variant="accent" className="mb-6">
-              <Lock className="w-3 h-3" />
+            <Badge variant="accent" className="mb-4 sm:mb-6">
+              <Lock className="w-3 h-3" aria-hidden="true" />
               Закрытый контур
             </Badge>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tighter text-primary-950 mb-6">
+            <h1 
+              id="hero-heading"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter text-primary-950 mb-4 sm:mb-6"
+            >
               Корпоративный{' '}
               <span className="text-gradient">AI-ассистент</span>{' '}
               в закрытом контуре
             </h1>
             
-            <p className="text-lg lg:text-xl text-primary-700 leading-relaxed mb-8">
+            <p className="text-base sm:text-lg lg:text-xl text-primary-700 leading-relaxed mb-6 sm:mb-8">
               Отвечает по документам{' '}
               <strong className="text-primary-900">со ссылками на источники</strong>.
               Разворачивается on-prem или в облаке РФ. Под контроль доступа
               и требования безопасности.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="accent" size="lg">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Button variant="accent" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
                 Запросить демо
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5" aria-hidden="true" />
               </Button>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
                 Скачать презентацию
               </Button>
             </div>
             
             {/* Trust indicators */}
-            <div className="mt-10 pt-8 border-t border-neutral-200">
+            <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-neutral-200">
               <p className="text-sm text-primary-500 mb-3">Доверяют нам</p>
-              <div className="flex items-center gap-8 opacity-50">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-8 opacity-50">
                 {/* Placeholder logos - заменить на реальные */}
-                <div className="h-8 w-24 bg-primary-300 rounded" />
-                <div className="h-8 w-20 bg-primary-300 rounded" />
-                <div className="h-8 w-28 bg-primary-300 rounded" />
+                <div className="h-6 sm:h-8 w-20 sm:w-24 bg-primary-300 rounded" role="img" aria-label="Логотип клиента 1" />
+                <div className="h-6 sm:h-8 w-16 sm:w-20 bg-primary-300 rounded" role="img" aria-label="Логотип клиента 2" />
+                <div className="h-6 sm:h-8 w-24 sm:w-28 bg-primary-300 rounded" role="img" aria-label="Логотип клиента 3" />
               </div>
             </div>
           </div>
           
           {/* Right: Product Mock */}
-          <div className="relative">
+          <div className="relative mt-8 lg:mt-0">
             <div className="relative bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden">
               {/* Chat header */}
-              <div className="flex items-center gap-3 px-5 py-4 bg-primary-50 border-b border-neutral-200">
-                <div className="w-3 h-3 rounded-full bg-red-400" />
-                <div className="w-3 h-3 rounded-full bg-amber-400" />
-                <div className="w-3 h-3 rounded-full bg-green-400" />
-                <span className="ml-2 text-sm font-medium text-primary-600">
+              <div className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-4 bg-primary-50 border-b border-neutral-200">
+                <div className="w-3 h-3 rounded-full bg-red-400" aria-hidden="true" />
+                <div className="w-3 h-3 rounded-full bg-amber-400" aria-hidden="true" />
+                <div className="w-3 h-3 rounded-full bg-green-400" aria-hidden="true" />
+                <span className="ml-2 text-xs sm:text-sm font-medium text-primary-600">
                   Корпоративный ассистент
                 </span>
               </div>
               
               {/* Chat content */}
-              <div className="p-5 space-y-4">
+              <div className="p-4 sm:p-5 space-y-4">
                 {/* User message */}
                 <div className="flex justify-end">
-                  <div className="bg-primary-900 text-white px-4 py-3 rounded-2xl rounded-br-sm max-w-[80%]">
+                  <div className="bg-primary-900 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-br-sm max-w-[85%] text-sm sm:text-base">
                     Какие условия возврата товара по договору с ООО «Поставщик»?
                   </div>
                 </div>
                 
                 {/* Assistant message */}
                 <div className="space-y-3">
-                  <div className="bg-neutral-100 px-4 py-3 rounded-2xl rounded-bl-sm max-w-[85%]">
-                    <p className="text-primary-800 mb-3">
+                  <div className="bg-neutral-100 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-bl-sm max-w-[90%]">
+                    <p className="text-primary-800 mb-2 sm:mb-3 text-sm sm:text-base">
                       Согласно договору №123-П, условия возврата товара следующие:
                     </p>
-                    <ul className="text-sm text-primary-700 space-y-1">
+                    <ul className="text-xs sm:text-sm text-primary-700 space-y-1">
                       <li>• Срок возврата: 14 календарных дней</li>
                       <li>• Товар должен сохранить товарный вид</li>
                       <li>• Требуется акт приёмки с дефектами</li>
@@ -269,21 +314,21 @@ export const HeroSection: React.FC = () => {
                   </div>
                   
                   {/* Sources panel - KEY DIFFERENTIATOR */}
-                  <div className="bg-accent-50 border border-accent-200 rounded-xl p-3">
+                  <div className="bg-accent-50 border border-accent-200 rounded-xl p-2.5 sm:p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <Link2 className="w-4 h-4 text-accent-600" />
+                      <Link2 className="w-4 h-4 text-accent-600" aria-hidden="true" />
                       <span className="text-xs font-semibold text-accent-700 uppercase tracking-wide">
                         Источники
                       </span>
                     </div>
                     <div className="space-y-1.5">
-                      <a href="#" className="flex items-center gap-2 text-sm text-accent-700 hover:text-accent-800">
-                        <FileText className="w-4 h-4" />
-                        <span className="underline">Договор_123-П.pdf, стр. 5</span>
+                      <a href="#" className="flex items-center gap-2 text-xs sm:text-sm text-accent-700 hover:text-accent-800">
+                        <FileText className="w-4 h-4 shrink-0" aria-hidden="true" />
+                        <span className="underline truncate">Договор_123-П.pdf, стр. 5</span>
                       </a>
-                      <a href="#" className="flex items-center gap-2 text-sm text-accent-700 hover:text-accent-800">
-                        <FileText className="w-4 h-4" />
-                        <span className="underline">Регламент_возврата.docx, п. 3.2</span>
+                      <a href="#" className="flex items-center gap-2 text-xs sm:text-sm text-accent-700 hover:text-accent-800">
+                        <FileText className="w-4 h-4 shrink-0" aria-hidden="true" />
+                        <span className="underline truncate">Регламент_возврата.docx, п. 3.2</span>
                       </a>
                     </div>
                   </div>
@@ -291,16 +336,16 @@ export const HeroSection: React.FC = () => {
               </div>
             </div>
             
-            {/* Floating badges */}
-            <div className="absolute -right-4 top-1/4 transform translate-x-1/2">
+            {/* Floating badges - hidden on mobile/tablet to prevent overflow */}
+            <div className="hidden xl:block absolute -right-4 top-1/4 transform translate-x-1/2">
               <div className="bg-white shadow-lg rounded-lg px-3 py-2 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-600" />
+                <Shield className="w-4 h-4 text-green-600" aria-hidden="true" />
                 <span className="text-xs font-medium text-primary-700">On-prem</span>
               </div>
             </div>
-            <div className="absolute -left-4 bottom-1/4 transform -translate-x-1/2">
+            <div className="hidden xl:block absolute -left-4 bottom-1/4 transform -translate-x-1/2">
               <div className="bg-white shadow-lg rounded-lg px-3 py-2 flex items-center gap-2">
-                <Lock className="w-4 h-4 text-accent-600" />
+                <Lock className="w-4 h-4 text-accent-600" aria-hidden="true" />
                 <span className="text-xs font-medium text-primary-700">RBAC</span>
               </div>
             </div>
@@ -317,19 +362,20 @@ export const HeroSection: React.FC = () => {
 
 export const SocialProofSection: React.FC = () => {
   return (
-    <Section size="default" className="py-12 lg:py-16 bg-white border-y border-neutral-100">
+    <Section size="default" className="py-10 sm:py-12 lg:py-16 bg-white border-y border-neutral-100" aria-label="Наши клиенты">
       <Container>
         <div className="text-center">
-          <p className="text-sm font-display font-medium text-primary-500 mb-8 uppercase tracking-wide">
+          <p className="text-xs sm:text-sm font-display font-medium text-primary-500 mb-6 sm:mb-8 uppercase tracking-wide">
             Нам доверяют
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-16">
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 lg:gap-16">
             {/* Placeholder logos - replace with real ones */}
             {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
-                className="h-10 w-28 bg-neutral-200 rounded-lg opacity-60 hover:opacity-100 transition-opacity"
-                title={`Клиент ${i} [НЕПОДТВЕРЖДЕНО]`}
+                className="h-8 sm:h-10 w-20 sm:w-28 bg-neutral-200 rounded-lg opacity-60 hover:opacity-100 transition-opacity"
+                role="img"
+                aria-label={`Логотип клиента ${i}`}
               />
             ))}
           </div>
@@ -384,13 +430,13 @@ const solutions = [
 
 export const ProblemSolutionSection: React.FC = () => {
   return (
-    <Section>
+    <Section aria-labelledby="problem-solution-heading">
       <Container>
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
           <Badge variant="primary" className="mb-4">
             Проблема → Решение
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="problem-solution-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             От хаоса к порядку в работе со знаниями
           </h2>
         </div>
@@ -398,19 +444,19 @@ export const ProblemSolutionSection: React.FC = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Problems */}
           <div>
-            <h3 className="font-display font-semibold text-lg text-primary-500 mb-6 uppercase tracking-wide">
+            <h3 className="font-display font-semibold text-base sm:text-lg text-primary-500 mb-4 sm:mb-6 uppercase tracking-wide">
               Без ассистента
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {problems.map((item) => (
                 <Card key={item.title} variant="outline" className="border-red-200/50 bg-red-50/30">
-                  <div className="flex gap-4">
-                    <IconWrapper variant="default" className="bg-red-100 text-red-600 shrink-0">
-                      <item.icon className="w-5 h-5" />
+                  <div className="flex gap-3 sm:gap-4">
+                    <IconWrapper variant="default" className="bg-red-100 text-red-600 shrink-0 w-10 h-10 sm:w-12 sm:h-12">
+                      <item.icon className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                     </IconWrapper>
-                    <div>
-                      <CardTitle className="text-base mb-1">{item.title}</CardTitle>
-                      <CardDescription className="text-sm">{item.description}</CardDescription>
+                    <div className="min-w-0">
+                      <CardTitle className="text-sm sm:text-base mb-1">{item.title}</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">{item.description}</CardDescription>
                     </div>
                   </div>
                 </Card>
@@ -420,19 +466,19 @@ export const ProblemSolutionSection: React.FC = () => {
 
           {/* Solutions */}
           <div>
-            <h3 className="font-display font-semibold text-lg text-accent-600 mb-6 uppercase tracking-wide">
+            <h3 className="font-display font-semibold text-base sm:text-lg text-accent-600 mb-4 sm:mb-6 uppercase tracking-wide">
               С AI-ассистентом
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {solutions.map((item) => (
                 <Card key={item.title} variant="outline" className="border-accent-200/50 bg-accent-50/30">
-                  <div className="flex gap-4">
-                    <IconWrapper variant="default" className="shrink-0">
-                      <item.icon className="w-5 h-5" />
+                  <div className="flex gap-3 sm:gap-4">
+                    <IconWrapper variant="default" className="shrink-0 w-10 h-10 sm:w-12 sm:h-12">
+                      <item.icon className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                     </IconWrapper>
-                    <div>
-                      <CardTitle className="text-base mb-1">{item.title}</CardTitle>
-                      <CardDescription className="text-sm">{item.description}</CardDescription>
+                    <div className="min-w-0">
+                      <CardTitle className="text-sm sm:text-base mb-1">{item.title}</CardTitle>
+                      <CardDescription className="text-xs sm:text-sm">{item.description}</CardDescription>
                     </div>
                   </div>
                 </Card>
@@ -484,25 +530,25 @@ const steps = [
 
 export const HowItWorksSection: React.FC = () => {
   return (
-    <Section background="gradient">
+    <Section background="gradient" aria-labelledby="how-it-works-heading">
       <Container>
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
           <Badge variant="primary" className="mb-4">
             Как это работает
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="how-it-works-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             От документов к ответам за 5 шагов
           </h2>
-          <p className="text-lg text-primary-600">
+          <p className="text-base sm:text-lg text-primary-600">
             Прозрачный процесс: каждый ответ можно проверить по источнику
           </p>
         </div>
         
         <div className="relative">
           {/* Connection line */}
-          <div className="hidden lg:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-accent-300 to-transparent" />
+          <div className="hidden lg:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-accent-300 to-transparent" aria-hidden="true" />
           
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-6">
             {steps.map((step, index) => (
               <div key={step.number} className="relative group">
                 <Card
@@ -513,23 +559,26 @@ export const HowItWorksSection: React.FC = () => {
                     {/* Step number */}
                     <div className="relative mb-4">
                       <IconWrapper size="lg" variant="default">
-                        <step.icon className="w-6 h-6" />
+                        <step.icon className="w-6 h-6" aria-hidden="true" />
                       </IconWrapper>
-                      <span className="absolute -top-2 -right-2 w-6 h-6 bg-primary-900 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      <span className="absolute -top-2 -right-2 w-6 h-6 bg-primary-900 text-white text-xs font-bold rounded-full flex items-center justify-center" aria-hidden="true">
                         {step.number}
                       </span>
                     </div>
                     
-                    <CardTitle className="text-lg mb-2">{step.title}</CardTitle>
-                    <CardDescription className="text-sm">
+                    <CardTitle className="text-base sm:text-lg mb-2">
+                      <span className="sr-only">Шаг {step.number}: </span>
+                      {step.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
                       {step.description}
                     </CardDescription>
                   </div>
                 </Card>
                 
-                {/* Arrow for mobile */}
+                {/* Arrow for mobile/tablet */}
                 {index < steps.length - 1 && (
-                  <div className="lg:hidden flex justify-center my-4">
+                  <div className="lg:hidden flex justify-center my-4 sm:hidden" aria-hidden="true">
                     <ChevronDown className="w-6 h-6 text-primary-300" />
                   </div>
                 )}
@@ -581,21 +630,21 @@ const features = [
 
 export const FeaturesSection: React.FC = () => {
   return (
-    <Section>
+    <Section aria-labelledby="features-heading">
       <Container>
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
           <Badge variant="accent" className="mb-4">
             Возможности
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="features-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             Всё для корпоративного AI-ассистента
           </h2>
-          <p className="text-lg text-primary-600">
+          <p className="text-base sm:text-lg text-primary-600">
             Основные функции, которые делают ассистента полезным и безопасным
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {features.map((feature, index) => (
             <Card
               key={feature.title}
@@ -604,10 +653,10 @@ export const FeaturesSection: React.FC = () => {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <IconWrapper variant="default" className="mb-4 group-hover:scale-110 transition-transform">
-                <feature.icon className="w-5 h-5" />
+                <feature.icon className="w-5 h-5" aria-hidden="true" />
               </IconWrapper>
-              <CardTitle className="mb-2">{feature.title}</CardTitle>
-              <CardDescription>{feature.description}</CardDescription>
+              <CardTitle className="text-base sm:text-lg mb-2">{feature.title}</CardTitle>
+              <CardDescription className="text-sm">{feature.description}</CardDescription>
             </Card>
           ))}
         </div>
@@ -688,57 +737,74 @@ export const UseCasesSection: React.FC = () => {
   const activeCase = useCases.find((uc) => uc.id === activeTab)!;
 
   return (
-    <Section background="gradient" id="use-cases">
+    <Section background="gradient" id="use-cases" aria-labelledby="use-cases-heading">
       <Container>
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <Badge variant="accent" className="mb-4">
             Кейсы применения
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="use-cases-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             Для каждого отдела — свой сценарий
           </h2>
-          <p className="text-lg text-primary-600">
+          <p className="text-base sm:text-lg text-primary-600">
             Ассистент адаптируется под задачи разных подразделений
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {useCases.map((uc) => (
-            <button
-              key={uc.id}
-              onClick={() => setActiveTab(uc.id)}
-              className={`
-                flex items-center gap-2 px-4 py-2.5 rounded-full
-                font-display text-sm font-medium transition-all
-                ${activeTab === uc.id
-                  ? 'bg-accent-600 text-white shadow-accent'
-                  : 'bg-white text-primary-700 hover:bg-primary-50 shadow-sm'
-                }
-              `}
-            >
-              <uc.icon className="w-4 h-4" />
-              {uc.title}
-            </button>
-          ))}
+        {/* Tabs - scrollable on mobile */}
+        <div className="mb-8 sm:mb-10 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div 
+            className="flex gap-2 sm:gap-3 sm:flex-wrap sm:justify-center overflow-x-auto pb-2 sm:pb-0 scrollbar-hide"
+            role="tablist"
+            aria-label="Выберите отдел"
+          >
+            {useCases.map((uc) => (
+              <button
+                key={uc.id}
+                onClick={() => setActiveTab(uc.id)}
+                role="tab"
+                aria-selected={activeTab === uc.id}
+                aria-controls={`tabpanel-${uc.id}`}
+                id={`tab-${uc.id}`}
+                className={`
+                  flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2.5 rounded-full
+                  font-display text-xs sm:text-sm font-medium transition-all whitespace-nowrap
+                  min-h-[44px] shrink-0
+                  ${activeTab === uc.id
+                    ? 'bg-accent-600 text-white shadow-accent'
+                    : 'bg-white text-primary-700 hover:bg-primary-50 shadow-sm'
+                  }
+                `}
+              >
+                <uc.icon className="w-4 h-4" aria-hidden="true" />
+                <span>{uc.title}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Active Tab Content */}
-        <Card variant="elevated" className="max-w-4xl mx-auto">
-          <div className="flex flex-col lg:flex-row gap-8">
+        <Card 
+          variant="elevated" 
+          className="max-w-4xl mx-auto"
+          role="tabpanel"
+          id={`tabpanel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+        >
+          <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
             <div className="lg:w-1/2">
               <IconWrapper size="lg" className="mb-4">
-                <activeCase.icon className="w-7 h-7" />
+                <activeCase.icon className="w-7 h-7" aria-hidden="true" />
               </IconWrapper>
-              <h3 className="text-2xl font-bold text-primary-950 mb-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-primary-950 mb-2">
                 {activeCase.title}
               </h3>
-              <p className="text-lg text-primary-600 mb-6">
+              <p className="text-base sm:text-lg text-primary-600 mb-6">
                 {activeCase.description}
               </p>
-              <Button variant="accent">
+              <Button variant="accent" className="w-full sm:w-auto justify-center min-h-[48px]">
                 Посмотреть кейс
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Button>
             </div>
             <div className="lg:w-1/2">
@@ -748,8 +814,8 @@ export const UseCasesSection: React.FC = () => {
               <ul className="space-y-3">
                 {activeCase.examples.map((example, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-accent-500 shrink-0 mt-0.5" />
-                    <span className="text-primary-700">{example}</span>
+                    <CheckCircle2 className="w-5 h-5 text-accent-500 shrink-0 mt-0.5" aria-hidden="true" />
+                    <span className="text-sm sm:text-base text-primary-700">{example}</span>
                   </li>
                 ))}
               </ul>
@@ -792,29 +858,29 @@ const addons = [
 
 export const AddonsSection: React.FC = () => {
   return (
-    <Section>
+    <Section aria-labelledby="addons-heading">
       <Container>
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <Badge variant="primary" className="mb-4">
             Дополнительные услуги
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="addons-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             Расширьте возможности ассистента
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
           {addons.map((addon) => (
             <Card key={addon.title} variant="default" className="h-full">
               <IconWrapper size="lg" className="mb-4">
-                <addon.icon className="w-6 h-6" />
+                <addon.icon className="w-6 h-6" aria-hidden="true" />
               </IconWrapper>
-              <CardTitle className="text-xl mb-2">{addon.title}</CardTitle>
-              <CardDescription className="mb-6">{addon.description}</CardDescription>
+              <CardTitle className="text-lg sm:text-xl mb-2">{addon.title}</CardTitle>
+              <CardDescription className="text-sm sm:text-base mb-6">{addon.description}</CardDescription>
               <ul className="space-y-2">
                 {addon.features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-primary-700">
-                    <CheckCircle2 className="w-4 h-4 text-accent-500" />
+                  <li key={i} className="flex items-center gap-2 text-xs sm:text-sm text-primary-700">
+                    <CheckCircle2 className="w-4 h-4 text-accent-500 shrink-0" aria-hidden="true" />
                     {feature}
                   </li>
                 ))}
@@ -875,21 +941,21 @@ const packages = [
 
 export const PackagesSection: React.FC = () => {
   return (
-    <Section background="gradient">
+    <Section background="gradient" aria-labelledby="packages-heading">
       <Container>
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <Badge variant="accent" className="mb-4">
             Пакеты
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="packages-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             Выберите подходящий вариант
           </h2>
-          <p className="text-lg text-primary-600">
+          <p className="text-base sm:text-lg text-primary-600">
             От пилота до enterprise-решения
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {packages.map((pkg) => (
             <Card
               key={pkg.name}
@@ -904,12 +970,12 @@ export const PackagesSection: React.FC = () => {
                 </div>
               )}
               <div className="flex-1">
-                <h3 className="text-2xl font-bold text-primary-950 mb-2">{pkg.name}</h3>
-                <p className="text-primary-600 mb-6">{pkg.description}</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-primary-950 mb-2">{pkg.name}</h3>
+                <p className="text-sm sm:text-base text-primary-600 mb-6">{pkg.description}</p>
                 <ul className="space-y-3 mb-8">
                   {pkg.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-primary-700">
-                      <CheckCircle2 className="w-4 h-4 text-accent-500" />
+                    <li key={i} className="flex items-center gap-2 text-xs sm:text-sm text-primary-700">
+                      <CheckCircle2 className="w-4 h-4 text-accent-500 shrink-0" aria-hidden="true" />
                       {feature}
                     </li>
                   ))}
@@ -917,7 +983,7 @@ export const PackagesSection: React.FC = () => {
               </div>
               <Button
                 variant={pkg.highlighted ? 'accent' : 'outline'}
-                className="w-full"
+                className="w-full min-h-[48px]"
               >
                 {pkg.cta}
               </Button>
@@ -925,7 +991,7 @@ export const PackagesSection: React.FC = () => {
           ))}
         </div>
 
-        <p className="text-center text-sm text-primary-500 mt-8">
+        <p className="text-center text-xs sm:text-sm text-primary-500 mt-8">
           Цены предоставляются по запросу. Стоимость зависит от объёма данных и требований к инфраструктуре.
         </p>
       </Container>
@@ -966,49 +1032,50 @@ const timelineSteps = [
 
 export const TimelineSection: React.FC = () => {
   return (
-    <Section>
+    <Section aria-labelledby="timeline-heading">
       <Container>
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
           <Badge variant="primary" className="mb-4">
             Процесс внедрения
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="timeline-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             Путь от идеи до работающего ассистента
           </h2>
-          <p className="text-lg text-primary-600">
+          <p className="text-base sm:text-lg text-primary-600">
             Поэтапное внедрение с контролем на каждом шаге
           </p>
         </div>
 
         <div className="relative">
           {/* Connection line for desktop */}
-          <div className="hidden lg:block absolute top-16 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-200 via-accent-300 to-primary-200" />
+          <div className="hidden lg:block absolute top-16 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-200 via-accent-300 to-primary-200" aria-hidden="true" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {timelineSteps.map((step, index) => (
               <div key={step.number} className="relative">
                 <div className="flex flex-col items-center text-center">
                   {/* Number circle */}
-                  <div className="relative z-10 mb-6">
-                    <div className="w-16 h-16 bg-white rounded-full shadow-lg border-2 border-accent-200 flex items-center justify-center">
-                      <step.icon className="w-7 h-7 text-accent-600" />
+                  <div className="relative z-10 mb-4 sm:mb-6">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-full shadow-lg border-2 border-accent-200 flex items-center justify-center">
+                      <step.icon className="w-6 h-6 sm:w-7 sm:h-7 text-accent-600" aria-hidden="true" />
                     </div>
-                    <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary-900 text-white text-sm font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 bg-primary-900 text-white text-xs sm:text-sm font-bold rounded-full flex items-center justify-center" aria-hidden="true">
                       {step.number}
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-bold text-primary-950 mb-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-primary-950 mb-2">
+                    <span className="sr-only">Этап {step.number}: </span>
                     {step.title}
                   </h3>
-                  <p className="text-primary-600 text-sm">
+                  <p className="text-sm text-primary-600">
                     {step.description}
                   </p>
                 </div>
 
-                {/* Arrow for mobile/tablet */}
+                {/* Arrow for mobile */}
                 {index < timelineSteps.length - 1 && (
-                  <div className="lg:hidden flex justify-center my-6">
+                  <div className="sm:hidden flex justify-center my-6" aria-hidden="true">
                     <ChevronDown className="w-6 h-6 text-primary-300" />
                   </div>
                 )}
@@ -1052,39 +1119,39 @@ export const SecuritySection: React.FC = () => {
   const [openIndex, setOpenIndex] = React.useState<number | null>(0);
   
   return (
-    <Section background="dark" className="text-white relative overflow-hidden">
+    <Section background="dark" className="text-white relative overflow-hidden" aria-labelledby="security-heading">
       {/* Background decoration */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-10" aria-hidden="true">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-500 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary-500 rounded-full blur-3xl" />
       </div>
       
       <Container className="relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
           {/* Left: Content */}
           <div>
-            <Badge variant="accent" className="mb-6 bg-accent-900/50 text-accent-300">
-              <Shield className="w-3 h-3" />
+            <Badge variant="accent" className="mb-4 sm:mb-6 bg-accent-900/50 text-accent-300">
+              <Shield className="w-3 h-3" aria-hidden="true" />
               Безопасность
             </Badge>
             
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+            <h2 id="security-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">
               Данные под вашим контролем
             </h2>
             
-            <p className="text-lg text-primary-300 mb-8">
+            <p className="text-base sm:text-lg text-primary-300 mb-6 sm:mb-8">
               Архитектура, которая соответствует требованиям Enterprise:
               изоляция данных, контроль доступа, полный аудит.
             </p>
             
-            <Button variant="accent" size="lg">
+            <Button variant="accent" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
               Подробнее о безопасности
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5" aria-hidden="true" />
             </Button>
           </div>
           
           {/* Right: Accordion */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4" role="region" aria-label="Функции безопасности">
             {securityItems.map((item, index) => (
               <div
                 key={item.title}
@@ -1097,33 +1164,42 @@ export const SecuritySection: React.FC = () => {
                 `}
               >
                 <button
-                  className="w-full px-5 py-4 flex items-center gap-4 text-left"
+                  className="w-full px-4 sm:px-5 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 text-left min-h-[56px]"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                  aria-expanded={openIndex === index}
+                  aria-controls={`security-panel-${index}`}
                 >
                   <IconWrapper
                     variant="dark"
                     size="sm"
-                    className={openIndex === index ? 'bg-accent-600' : ''}
+                    className={`shrink-0 ${openIndex === index ? 'bg-accent-600' : ''}`}
                   >
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className="w-4 h-4" aria-hidden="true" />
                   </IconWrapper>
-                  <span className="flex-1 font-display font-semibold text-white">
+                  <span className="flex-1 font-display font-semibold text-sm sm:text-base text-white">
                     {item.title}
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-primary-400 transition-transform ${
+                    className={`w-5 h-5 text-primary-400 transition-transform shrink-0 ${
                       openIndex === index ? 'rotate-180' : ''
                     }`}
+                    aria-hidden="true"
                   />
                 </button>
                 
-                {openIndex === index && (
-                  <div className="px-5 pb-4 pl-[4.5rem]">
-                    <p className="text-primary-300 leading-relaxed">
+                <div
+                  id={`security-panel-${index}`}
+                  className={`overflow-hidden transition-all duration-300 ${
+                    openIndex === index ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                  aria-hidden={openIndex !== index}
+                >
+                  <div className="px-4 sm:px-5 pb-4 pl-[3.5rem] sm:pl-[4.5rem]">
+                    <p className="text-sm sm:text-base text-primary-300 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
@@ -1139,46 +1215,46 @@ export const SecuritySection: React.FC = () => {
 
 export const CTASection: React.FC = () => {
   return (
-    <Section>
+    <Section aria-labelledby="cta-heading">
       <Container>
-        <div className="relative bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 rounded-3xl p-10 lg:p-16 overflow-hidden">
+        <div className="relative bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-16 overflow-hidden">
           {/* Background pattern */}
-          <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 opacity-5" aria-hidden="true">
             <div className="absolute inset-0" style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
             }} />
           </div>
           
           <div className="relative z-10 text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+            <h2 id="cta-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6">
               Покажем демо на ваших документах
             </h2>
-            <p className="text-lg text-primary-300 mb-8">
+            <p className="text-base sm:text-lg text-primary-300 mb-6 sm:mb-8">
               Загрузите 2-3 документа — увидите, как ассистент отвечает с цитатами.
               30 минут, без обязательств.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="accent" size="lg">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Button variant="accent" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
                 Запросить демо
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5" aria-hidden="true" />
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white/30 text-white hover:bg-white/10"
+                className="w-full sm:w-auto justify-center min-h-[52px] border-white/30 text-white hover:bg-white/10"
               >
                 Посмотреть кейсы
               </Button>
             </div>
             
-            <div className="mt-10 flex items-center justify-center gap-8 text-sm text-primary-400">
+            <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-primary-400">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent-400" />
+                <CheckCircle2 className="w-4 h-4 text-accent-400" aria-hidden="true" />
                 <span>Бесплатная консультация</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent-400" />
+                <CheckCircle2 className="w-4 h-4 text-accent-400" aria-hidden="true" />
                 <span>Оценка за 1-2 дня</span>
               </div>
             </div>
@@ -1232,18 +1308,18 @@ export const FAQSection: React.FC = () => {
   const [openIndex, setOpenIndex] = React.useState<number | null>(0);
 
   return (
-    <Section id="faq">
+    <Section id="faq" aria-labelledby="faq-heading">
       <Container size="narrow">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <Badge variant="primary" className="mb-4">
             Вопросы и ответы
           </Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
+          <h2 id="faq-heading" className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
             Частые вопросы
           </h2>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-3">
+        <div className="max-w-3xl mx-auto space-y-2 sm:space-y-3">
           {faqItems.map((item, index) => (
             <div
               key={index}
@@ -1256,10 +1332,12 @@ export const FAQSection: React.FC = () => {
               `}
             >
               <button
-                className="w-full px-6 py-4 flex items-center justify-between text-left"
+                className="w-full px-4 sm:px-6 py-4 flex items-center justify-between text-left min-h-[56px] gap-3"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                aria-expanded={openIndex === index}
+                aria-controls={`faq-panel-${index}`}
               >
-                <span className="font-display font-semibold text-primary-900 pr-4">
+                <span className="font-display font-semibold text-sm sm:text-base text-primary-900">
                   {item.question}
                 </span>
                 <div
@@ -1271,6 +1349,7 @@ export const FAQSection: React.FC = () => {
                       : 'bg-neutral-200 text-primary-600'
                     }
                   `}
+                  aria-hidden="true"
                 >
                   {openIndex === index ? (
                     <Minus className="w-4 h-4" />
@@ -1280,13 +1359,19 @@ export const FAQSection: React.FC = () => {
                 </div>
               </button>
 
-              {openIndex === index && (
-                <div className="px-6 pb-4">
-                  <p className="text-primary-600 leading-relaxed">
+              <div
+                id={`faq-panel-${index}`}
+                className={`overflow-hidden transition-all duration-300 ${
+                  openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+                aria-hidden={openIndex !== index}
+              >
+                <div className="px-4 sm:px-6 pb-4">
+                  <p className="text-sm sm:text-base text-primary-600 leading-relaxed">
                     {item.answer}
                   </p>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
@@ -1319,15 +1404,15 @@ const footerLinks = {
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-primary-950 text-white">
+    <footer className="bg-primary-950 text-white" role="contentinfo">
       <Container>
-        <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <div className="py-12 sm:py-16">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8">
             {/* Brand */}
-            <div className="lg:col-span-1">
-              <a href="/" className="flex items-center gap-2 mb-4">
+            <div className="col-span-2 sm:col-span-2 lg:col-span-1">
+              <a href="/" className="flex items-center gap-2 mb-4" aria-label="CORPRAG — На главную">
                 <div className="w-8 h-8 bg-gradient-to-br from-accent-500 to-accent-700 rounded-lg flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
+                  <Bot className="w-5 h-5 text-white" aria-hidden="true" />
                 </div>
                 <span className="font-display font-bold text-xl">CORPRAG</span>
               </a>
@@ -1338,17 +1423,17 @@ export const Footer: React.FC = () => {
               <div className="flex items-center gap-3">
                 <a
                   href="#"
-                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors min-w-[44px] min-h-[44px]"
                   aria-label="Telegram"
                 >
-                  <MessageSquare className="w-5 h-5" />
+                  <MessageSquare className="w-5 h-5" aria-hidden="true" />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                  className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors min-w-[44px] min-h-[44px]"
                   aria-label="LinkedIn"
                 >
-                  <Linkedin className="w-5 h-5" />
+                  <Linkedin className="w-5 h-5" aria-hidden="true" />
                 </a>
               </div>
             </div>
@@ -1363,7 +1448,7 @@ export const Footer: React.FC = () => {
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className="text-primary-300 hover:text-white transition-colors"
+                      className="text-sm sm:text-base text-primary-300 hover:text-white transition-colors"
                     >
                       {link.label}
                     </a>
@@ -1382,7 +1467,7 @@ export const Footer: React.FC = () => {
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className="text-primary-300 hover:text-white transition-colors"
+                      className="text-sm sm:text-base text-primary-300 hover:text-white transition-colors"
                     >
                       {link.label}
                     </a>
@@ -1392,7 +1477,7 @@ export const Footer: React.FC = () => {
             </div>
 
             {/* Contact */}
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <h4 className="font-display font-semibold text-sm uppercase tracking-wide text-primary-400 mb-4">
                 Контакты
               </h4>
@@ -1400,23 +1485,23 @@ export const Footer: React.FC = () => {
                 <li>
                   <a
                     href="mailto:hello@corprag.ru"
-                    className="flex items-center gap-2 text-primary-300 hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-sm sm:text-base text-primary-300 hover:text-white transition-colors"
                   >
-                    <Mail className="w-4 h-4" />
-                    hello@corprag.ru
+                    <Mail className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    <span className="break-all">hello@corprag.ru</span>
                   </a>
                 </li>
                 <li>
                   <a
                     href="tel:+74951234567"
-                    className="flex items-center gap-2 text-primary-300 hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-sm sm:text-base text-primary-300 hover:text-white transition-colors"
                   >
-                    <Phone className="w-4 h-4" />
+                    <Phone className="w-4 h-4 shrink-0" aria-hidden="true" />
                     +7 (495) 123-45-67
                   </a>
                 </li>
-                <li className="flex items-start gap-2 text-primary-300">
-                  <MapPin className="w-4 h-4 shrink-0 mt-1" />
+                <li className="flex items-start gap-2 text-sm sm:text-base text-primary-300">
+                  <MapPin className="w-4 h-4 shrink-0 mt-1" aria-hidden="true" />
                   <span>Москва, ул. Примерная, д. 1</span>
                 </li>
               </ul>
@@ -1425,21 +1510,21 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="py-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-500">
+        <div className="py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <p className="text-xs sm:text-sm text-primary-500">
             © {new Date().getFullYear()} CORPRAG. Все права защищены.
           </p>
-          <div className="flex items-center gap-6">
+          <nav className="flex flex-wrap items-center justify-center sm:justify-end gap-4 sm:gap-6" aria-label="Юридическая информация">
             {footerLinks.legal.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm text-primary-500 hover:text-primary-300 transition-colors"
+                className="text-xs sm:text-sm text-primary-500 hover:text-primary-300 transition-colors"
               >
                 {link.label}
               </a>
             ))}
-          </div>
+          </nav>
         </div>
       </Container>
     </footer>
@@ -1597,11 +1682,11 @@ export const RequestDemoForm: React.FC = () => {
               />
 
               {/* Data sources */}
-              <div>
-                <p className="block font-display text-sm font-semibold text-primary-800 mb-3">
+              <fieldset>
+                <legend className="block font-display text-sm font-semibold text-primary-800 mb-3">
                   Источники данных
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                </legend>
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3">
                   {dataSourceOptions.map((source) => (
                     <Checkbox
                       key={source.id}
@@ -1610,7 +1695,7 @@ export const RequestDemoForm: React.FC = () => {
                     />
                   ))}
                 </div>
-              </div>
+              </fieldset>
 
               {/* Comment */}
               <Textarea
