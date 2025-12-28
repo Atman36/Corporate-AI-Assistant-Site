@@ -497,7 +497,10 @@ export const Section: React.FC<SectionProps> = ({
   return (
     <Component
       className={cn(
-        size === 'default' ? 'py-24' : 'py-32',
+        // Mobile-first: base padding for mobile, then increase for larger screens
+        size === 'default'
+          ? 'py-16 md:py-20 lg:py-24'
+          : 'py-20 md:py-24 lg:py-32',
         background === 'gradient' && 'bg-gradient-section',
         background === 'dark' && 'bg-gradient-dark',
         className
@@ -526,7 +529,8 @@ export const Container: React.FC<ContainerProps> = ({
   return (
     <div
       className={cn(
-        'mx-auto px-6',
+        // Mobile-first: smaller padding on mobile, larger on desktop
+        'mx-auto px-4 sm:px-6 xl:px-8',
         size === 'narrow' ? 'max-w-narrow' : 'max-w-wide',
         className
       )}

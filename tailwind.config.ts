@@ -2,9 +2,25 @@ import type { Config } from 'tailwindcss'
 
 /**
  * CORPRAG Design System — Tailwind Configuration
- * 
+ *
  * Интеграция дизайн-токенов с Tailwind CSS.
  * Используйте вместе с globals.css
+ *
+ * Mobile-First Responsive Design:
+ * ===============================
+ * Tailwind CSS uses a mobile-first breakpoint system by default.
+ *
+ * Base styles (no prefix) = Mobile devices (< 640px)
+ * sm:  → Small screens and up (≥ 640px)
+ * md:  → Medium screens and up (≥ 768px)
+ * lg:  → Large screens and up (≥ 1024px)
+ * xl:  → Extra large screens and up (≥ 1280px)
+ * 2xl: → 2X large screens and up (≥ 1536px)
+ *
+ * Example usage:
+ * - "text-base md:text-lg lg:text-xl" → starts small, grows on larger screens
+ * - "py-16 md:py-20 lg:py-24" → increases padding progressively
+ * - "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" → stack on mobile, grid on desktop
  */
 
 const config: Config = {

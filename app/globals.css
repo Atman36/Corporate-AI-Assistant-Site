@@ -598,21 +598,87 @@
 }
 
 /* ============================================
-   Responsive Overrides
+   Mobile-First Responsive System
+
+   Base styles = Mobile (< 640px)
+   Then progressively enhance for larger screens.
+
+   Breakpoints (matching Tailwind defaults):
+   - sm: 640px
+   - md: 768px
+   - lg: 1024px
+   - xl: 1280px
+   - 2xl: 1536px
    ============================================ */
 
-@media (max-width: 768px) {
+/* === Mobile Base (default) === */
+:root {
+  /* Mobile typography scale */
+  --text-5xl-responsive: 2.25rem;   /* 36px on mobile */
+  --text-6xl-responsive: 2.5rem;    /* 40px on mobile */
+  --text-7xl-responsive: 3rem;      /* 48px on mobile */
+
+  /* Mobile section spacing */
+  --section-padding: var(--space-16);
+  --section-padding-lg: var(--space-20);
+
+  /* Mobile container padding */
+  --container-padding: var(--space-4);
+}
+
+/* === Small screens and up (sm: 640px) === */
+@media (min-width: 640px) {
   :root {
-    --text-5xl: 2.5rem;
-    --text-6xl: 3rem;
-    --text-7xl: 3.5rem;
+    --text-5xl-responsive: 2.5rem;  /* 40px */
+    --text-6xl-responsive: 3rem;    /* 48px */
+    --text-7xl-responsive: 3.5rem;  /* 56px */
+
+    --container-padding: var(--space-6);
   }
-  
-  .section {
-    padding-block: var(--space-16);
+}
+
+/* === Medium screens and up (md: 768px) === */
+@media (min-width: 768px) {
+  :root {
+    --text-5xl-responsive: 2.75rem; /* 44px */
+    --text-6xl-responsive: 3.25rem; /* 52px */
+    --text-7xl-responsive: 4rem;    /* 64px */
+
+    --section-padding: var(--space-20);
+    --section-padding-lg: var(--space-24);
   }
-  
-  .section-lg {
-    padding-block: var(--space-20);
+}
+
+/* === Large screens and up (lg: 1024px) === */
+@media (min-width: 1024px) {
+  :root {
+    --text-5xl-responsive: 3rem;    /* 48px - original */
+    --text-6xl-responsive: 3.75rem; /* 60px - original */
+    --text-7xl-responsive: 4.5rem;  /* 72px - original */
+
+    --section-padding: var(--space-24);
+    --section-padding-lg: var(--space-32);
   }
+}
+
+/* === Extra large screens (xl: 1280px) === */
+@media (min-width: 1280px) {
+  :root {
+    --container-padding: var(--space-8);
+  }
+}
+
+/* Apply responsive section padding */
+.section {
+  padding-block: var(--section-padding);
+}
+
+.section-lg {
+  padding-block: var(--section-padding-lg);
+}
+
+/* Apply responsive container padding */
+.container-narrow,
+.container-wide {
+  padding-inline: var(--container-padding);
 }
