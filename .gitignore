@@ -58,3 +58,6 @@ Desktop.ini
 
 # TypeScript
 *.tsbuildinfo
+
+# Generated reports (Wordstat / marketing)
+reports/
