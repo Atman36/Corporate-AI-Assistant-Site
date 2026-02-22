@@ -19,7 +19,6 @@ import {
   Container,
   Input,
   Textarea,
-  Select,
   Checkbox,
 } from './ui';
 import {
@@ -63,11 +62,11 @@ import {
    ============================================ */
 
 const navLinks = [
-  { href: '#how-it-works', label: 'Как работает' },
-  { href: '#features', label: 'Возможности' },
-  { href: '#use-cases', label: 'Кейсы' },
-  { href: '#security', label: 'Безопасность' },
-  { href: '#faq', label: 'FAQ' },
+  { href: '/#how-it-works', label: 'Как работает' },
+  { href: '/#features', label: 'Возможности' },
+  { href: '/#use-cases', label: 'Кейсы' },
+  { href: '/#security', label: 'Безопасность' },
+  { href: '/#faq', label: 'FAQ' },
 ];
 
 export const Header: React.FC = () => {
@@ -104,14 +103,20 @@ export const Header: React.FC = () => {
   }, [isMenuOpen]);
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('#')) {
-      e.preventDefault();
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setIsMenuOpen(false);
-      }
-    }
+    const hashIndex = href.indexOf('#');
+    if (hashIndex === -1) return;
+
+    const hash = href.slice(hashIndex); // "#section"
+    const onHome = window.location.pathname === '/' || window.location.pathname === '';
+
+    if (!onHome) return; // allow navigation to "/#section" from other pages
+
+    const element = document.querySelector(hash);
+    if (!element) return;
+
+    e.preventDefault();
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsMenuOpen(false);
   };
 
   return (
@@ -154,12 +159,19 @@ export const Header: React.FC = () => {
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              Скачать PDF
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              aria-label="Скачать one-pager (PDF) — перейти к форме"
+            >
+              <a href="/?intent=one-pager#request-demo">Скачать one-pager (PDF)</a>
             </Button>
-            <Button variant="accent" size="sm">
-              Запросить демо
-              <ArrowRight className="w-4 h-4" aria-hidden="true" />
+            <Button asChild variant="accent" size="sm" aria-label="Запросить демо — перейти к форме">
+              <a href="/#request-demo">
+                Запросить демо
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </a>
             </Button>
           </div>
 
@@ -202,12 +214,24 @@ export const Header: React.FC = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-3 mt-4 pt-4 px-4 border-t border-neutral-100">
-                <Button variant="outline" size="md" className="w-full justify-center min-h-[48px]">
-                  Скачать PDF
+                <Button
+                  asChild
+                  variant="outline"
+                  size="md"
+                  className="w-full justify-center min-h-[48px]"
+                >
+                  <a href="/?intent=one-pager#request-demo">Скачать one-pager (PDF)</a>
                 </Button>
-                <Button variant="accent" size="md" className="w-full justify-center min-h-[48px]">
-                  Запросить демо
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                <Button
+                  asChild
+                  variant="accent"
+                  size="md"
+                  className="w-full justify-center min-h-[48px]"
+                >
+                  <a href="/#request-demo">
+                    Запросить демо
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </a>
                 </Button>
               </div>
             </nav>
@@ -223,6 +247,90 @@ export const Header: React.FC = () => {
    ============================================ */
 
 export const HeroSection: React.FC = () => {
+  const demoScenarios = React.useMemo(
+    () =>
+      [
+        {
+          id: 'it',
+          label: 'ИТ',
+          question: 'Как быстро восстановить доступ к корпоративной почте после смены телефона?',
+          answerIntro: 'Коротко по инструкции восстановления доступа:',
+          bullets: [
+            'Подайте заявку в Service Desk с причиной «Смена устройства»',
+            'Приложите фото документа/пропуска (по регламенту)',
+            'Ожидайте подтверждение — доступ восстановят после проверки',
+          ],
+          sources: [
+            {
+              title: 'Регламент_доступа.pdf',
+              meta: 'п. 2.4',
+              excerpt: 'При смене устройства сотрудник оформляет заявку в Service Desk; доступ восстанавливается после подтверждения личности.',
+            },
+            {
+              title: 'FAQ_ServiceDesk.md',
+              meta: 'раздел «Почта»',
+              excerpt: 'Если телефон утерян/заменён, используйте сценарий «Смена устройства» и укажите новый номер для MFA.',
+            },
+          ],
+        },
+        {
+          id: 'legal',
+          label: 'Юристы',
+          question: 'Какие условия возврата товара по договору с ООО «Поставщик»?',
+          answerIntro: 'Согласно договору №123‑П, условия возврата следующие:',
+          bullets: [
+            'Срок возврата: 14 календарных дней',
+            'Товар должен сохранить товарный вид',
+            'Требуется акт приёмки с дефектами',
+          ],
+          sources: [
+            {
+              title: 'Договор_123‑П.pdf',
+              meta: 'стр. 5',
+              excerpt: 'Возврат товара возможен в течение 14 календарных дней при сохранении товарного вида и оформлении акта с описанием дефектов.',
+            },
+            {
+              title: 'Регламент_возврата.docx',
+              meta: 'п. 3.2',
+              excerpt: 'Для возврата оформляется акт приёмки с дефектами; сроки и порядок согласуются с ответственным менеджером.',
+            },
+          ],
+        },
+        {
+          id: 'hr',
+          label: 'HR',
+          question: 'Какие документы нужны для оформления ДМС и когда оно начинает действовать?',
+          answerIntro: 'По правилам ДМС для сотрудников:',
+          bullets: [
+            'Заполните заявление и согласие на обработку данных',
+            'Приложите паспортные данные (в установленной форме)',
+            'ДМС обычно активируется после подтверждения от страховой',
+          ],
+          sources: [
+            {
+              title: 'Политика_льгот.pdf',
+              meta: 'раздел «ДМС»',
+              excerpt: 'Для подключения ДМС требуется заявление и комплект данных в форме HR‑портала; активация происходит после подтверждения страховщика.',
+            },
+            {
+              title: 'Онбординг_чеклист.xlsx',
+              meta: 'лист 2',
+              excerpt: 'ДМС: заполнить заявление, передать данные, дождаться подтверждения — статус отображается в HR‑портале.',
+            },
+          ],
+        },
+      ] as const,
+    []
+  );
+
+  const [activeScenarioIndex, setActiveScenarioIndex] = React.useState(0);
+  const [activeSourceIndex, setActiveSourceIndex] = React.useState(0);
+
+  React.useEffect(() => setActiveSourceIndex(0), [activeScenarioIndex]);
+
+  const activeScenario = demoScenarios[activeScenarioIndex];
+  const activeSource = activeScenario.sources[activeSourceIndex];
+
   return (
     <section className="relative overflow-hidden bg-gradient-hero py-16 sm:py-20 lg:py-32" aria-labelledby="hero-heading">
       {/* Decorative elements */}
@@ -250,20 +358,40 @@ export const HeroSection: React.FC = () => {
             </h1>
             
             <p className="text-base sm:text-lg lg:text-xl text-primary-700 leading-relaxed mb-6 sm:mb-8">
-              Отвечает по документам{' '}
-              <strong className="text-primary-900">со ссылками на источники</strong>.
-              Разворачивается on-prem или в облаке РФ. Под контроль доступа
-              и требования безопасности.
+              Отвечает по вашим документам{' '}
+              <strong className="text-primary-900">с цитатами и ссылками</strong>{' '}
+              — с учётом <strong className="text-primary-900">RBAC/SSO</strong> и аудит-логом.
+              Развёртывание: on-prem или облако РФ.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Button variant="accent" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
-                Запросить демо
-                <ArrowRight className="w-5 h-5" aria-hidden="true" />
+              <Button
+                asChild
+                variant="accent"
+                size="lg"
+                className="w-full sm:w-auto justify-center min-h-[52px]"
+              >
+                <a href="/#request-demo">
+                  Запросить демо
+                  <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                </a>
               </Button>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
-                Скачать презентацию
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto justify-center min-h-[52px]"
+              >
+                <a href="/?intent=one-pager#request-demo">Скачать one-pager (PDF)</a>
               </Button>
+            </div>
+
+            <div className="mt-4 text-sm text-primary-600 flex flex-wrap gap-x-3 gap-y-1">
+              <span>Цитаты и источники</span>
+              <span aria-hidden="true">·</span>
+              <span>RBAC/SSO</span>
+              <span aria-hidden="true">·</span>
+              <span>Аудит и логи</span>
             </div>
             
             {/* Trust indicators */}
@@ -293,10 +421,36 @@ export const HeroSection: React.FC = () => {
               
               {/* Chat content */}
               <div className="p-4 sm:p-5 space-y-4">
+                {/* Scenario buttons */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-primary-500">Примеры:</span>
+                  {demoScenarios.map((s, idx) => {
+                    const isActive = idx === activeScenarioIndex;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setActiveScenarioIndex(idx)}
+                        className={`
+                          px-2.5 py-1.5 rounded-full text-xs font-display font-semibold
+                          border transition-colors
+                          ${isActive
+                            ? 'bg-accent-100 border-accent-200 text-accent-800'
+                            : 'bg-white border-neutral-200 text-primary-600 hover:bg-neutral-50'
+                          }
+                        `}
+                        aria-pressed={isActive}
+                      >
+                        {s.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {/* User message */}
                 <div className="flex justify-end">
                   <div className="bg-primary-900 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-br-sm max-w-[85%] text-sm sm:text-base">
-                    Какие условия возврата товара по договору с ООО «Поставщик»?
+                    {activeScenario.question}
                   </div>
                 </div>
                 
@@ -304,12 +458,12 @@ export const HeroSection: React.FC = () => {
                 <div className="space-y-3">
                   <div className="bg-neutral-100 px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-bl-sm max-w-[90%]">
                     <p className="text-primary-800 mb-2 sm:mb-3 text-sm sm:text-base">
-                      Согласно договору №123-П, условия возврата товара следующие:
+                      {activeScenario.answerIntro}
                     </p>
                     <ul className="text-xs sm:text-sm text-primary-700 space-y-1">
-                      <li>• Срок возврата: 14 календарных дней</li>
-                      <li>• Товар должен сохранить товарный вид</li>
-                      <li>• Требуется акт приёмки с дефектами</li>
+                      {activeScenario.bullets.map((b) => (
+                        <li key={b}>• {b}</li>
+                      ))}
                     </ul>
                   </div>
                   
@@ -322,15 +476,44 @@ export const HeroSection: React.FC = () => {
                       </span>
                     </div>
                     <div className="space-y-1.5">
-                      <a href="#" className="flex items-center gap-2 text-xs sm:text-sm text-accent-700 hover:text-accent-800">
-                        <FileText className="w-4 h-4 shrink-0" aria-hidden="true" />
-                        <span className="underline truncate">Договор_123-П.pdf, стр. 5</span>
-                      </a>
-                      <a href="#" className="flex items-center gap-2 text-xs sm:text-sm text-accent-700 hover:text-accent-800">
-                        <FileText className="w-4 h-4 shrink-0" aria-hidden="true" />
-                        <span className="underline truncate">Регламент_возврата.docx, п. 3.2</span>
-                      </a>
+                      {activeScenario.sources.map((src, idx) => {
+                        const isActive = idx === activeSourceIndex;
+                        return (
+                          <button
+                            key={`${src.title}-${src.meta}`}
+                            type="button"
+                            onClick={() => setActiveSourceIndex(idx)}
+                            className={`
+                              w-full flex items-center gap-2 text-left text-xs sm:text-sm
+                              ${isActive ? 'text-accent-800' : 'text-accent-700 hover:text-accent-800'}
+                            `}
+                            aria-pressed={isActive}
+                          >
+                            <FileText className="w-4 h-4 shrink-0" aria-hidden="true" />
+                            <span className={`underline truncate ${isActive ? 'decoration-2' : ''}`}>
+                              {src.title}, {src.meta}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
+                    <div className="mt-2 rounded-lg bg-white/70 border border-accent-200/60 p-2">
+                      <p className="text-[11px] text-accent-800 font-semibold mb-1">
+                        Фрагмент
+                      </p>
+                      <p className="text-xs text-primary-800 leading-relaxed">
+                        <span className="bg-accent-200/60 px-1 rounded">
+                          {activeSource.excerpt}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 text-xs text-primary-600">
+                    <AlertTriangle className="w-4 h-4 text-primary-400 shrink-0 mt-0.5" aria-hidden="true" />
+                    <span>
+                      Если в документах нет ответа — ассистент так и скажет и предложит, где искать.
+                    </span>
                   </div>
                 </div>
               </div>
@@ -599,32 +782,32 @@ const features = [
   {
     icon: Search,
     title: 'Поиск + источники',
-    description: 'Каждый ответ с цитатами и ссылками на конкретные документы',
+    description: 'Цитаты уровня абзаца + ссылка на страницу/пункт',
   },
   {
     icon: Users,
     title: 'RBAC / права доступа',
-    description: 'Ответы только по документам, доступным текущему пользователю',
+    description: 'SSO (AD/LDAP) и политики доступа: роли/группы/источники',
   },
   {
     icon: Settings,
     title: 'Админка управления',
-    description: 'Настройка источников, пользователей и политик без кода',
+    description: 'Политики источников: allow/deny по типам документов и папкам',
   },
   {
     icon: FileText,
     title: 'Шаблоны и генерация',
-    description: 'Создание писем, отчётов, договоров по вашим стандартам',
+    description: 'Генерация по корпоративным шаблонам; read-only по умолчанию',
   },
   {
     icon: Clock,
     title: 'История и экспорт',
-    description: 'Полная история диалогов с возможностью экспорта',
+    description: 'Аудит запросов и ответов; экспорт (в т.ч. для SIEM — по запросу)',
   },
   {
     icon: Database,
     title: 'Интеграции под вас',
-    description: 'Подключение к любым внутренним системам компании',
+    description: 'Confluence/SharePoint/1С/Service Desk и кастомные коннекторы',
   },
 ];
 
@@ -674,13 +857,18 @@ const useCases = [
     id: 'it',
     icon: Building2,
     title: 'ИТ и поддержка',
-    description: 'Внутренний ServiceDesk на стероидах',
+    description: 'Первая линия поддержки: ответы на типовые заявки за секунды',
     examples: [
       'Поиск по базе знаний технической поддержки',
       'Ответы на типовые вопросы пользователей',
       'Инструкции по настройке ПО и оборудования',
       'Документация по внутренним системам',
     ],
+    caseCard: {
+      pain: 'Типовые обращения повторяются, знания разбросаны по wiki/чатам, ответы зависят от конкретных сотрудников.',
+      solution: 'Подключили базу знаний и регламенты; ответы с цитатами + доступ по ролям.',
+      outcome: 'Сократили время поиска и разгрузили первую линию поддержки.',
+    },
   },
   {
     id: 'legal',
@@ -693,6 +881,11 @@ const useCases = [
       'Сравнение редакций документов',
       'Генерация типовых писем и ответов',
     ],
+    caseCard: {
+      pain: 'Поиск условий по договорам занимает время, сложно быстро проверить ссылку на пункт/страницу.',
+      solution: 'Индексация договоров и регламентов; выдача ответа только с цитатами и ссылками.',
+      outcome: 'Быстрее находят нужные пункты и снижают риск ошибок при интерпретации.',
+    },
   },
   {
     id: 'hr',
@@ -705,6 +898,11 @@ const useCases = [
       'Информация о льготах и компенсациях',
       'Онбординг-материалы и чек-листы',
     ],
+    caseCard: {
+      pain: 'Повторяющиеся вопросы про льготы/процессы и долгий поиск актуальной версии документа.',
+      solution: 'Подключили политики и чек-листы; ответы с указанием источника и версии.',
+      outcome: 'Ускорили онбординг и снизили нагрузку на HR.',
+    },
   },
   {
     id: 'procurement',
@@ -717,6 +915,11 @@ const useCases = [
       'Сравнение коммерческих предложений',
       'Подготовка тендерной документации',
     ],
+    caseCard: {
+      pain: 'Сложно быстро сопоставить требования, КП и условия поставщиков по разным файлам.',
+      solution: 'Собрали спецификации и типовые формы; ассистент выдаёт выдержки с источниками.',
+      outcome: 'Сократили время подготовки и проверки тендерной документации.',
+    },
   },
   {
     id: 'production',
@@ -729,6 +932,11 @@ const useCases = [
       'Стандарты качества и нормативы',
       'Отчёты по техническому обслуживанию',
     ],
+    caseCard: {
+      pain: 'Регламенты и инструкции обновляются, а нужный фрагмент трудно найти на смене.',
+      solution: 'Индексация техдоков; ответы со ссылкой на документ и пункт.',
+      outcome: 'Ускорили поиск и снизили риск использования устаревшей версии.',
+    },
   },
 ];
 
@@ -802,9 +1010,11 @@ export const UseCasesSection: React.FC = () => {
               <p className="text-base sm:text-lg text-primary-600 mb-6">
                 {activeCase.description}
               </p>
-              <Button variant="accent" className="w-full sm:w-auto justify-center min-h-[48px]">
-                Посмотреть кейс
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              <Button asChild variant="accent" className="w-full sm:w-auto justify-center min-h-[48px]">
+                <a href="/#request-demo">
+                  Запросить демо
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </a>
               </Button>
             </div>
             <div className="lg:w-1/2">
@@ -819,6 +1029,23 @@ export const UseCasesSection: React.FC = () => {
                   </li>
                 ))}
               </ul>
+
+              <div className="mt-6 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+                <h5 className="text-xs font-semibold text-primary-500 uppercase tracking-wide mb-3">
+                  Короткий кейс
+                </h5>
+                <div className="space-y-2 text-sm text-primary-700">
+                  <p>
+                    <span className="font-semibold text-primary-900">Что болело:</span> {activeCase.caseCard.pain}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-primary-900">Что сделали:</span> {activeCase.caseCard.solution}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-primary-900">Результат:</span> {activeCase.caseCard.outcome}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </Card>
@@ -835,7 +1062,7 @@ const addons = [
   {
     icon: Plug,
     title: 'Интеграции и автоматизация',
-    description: 'LLM-агенты, которые не просто отвечают, а выполняют действия',
+    description: 'Автоматизация действий — опционально: по allowlist, с подтверждением и полным аудитом',
     features: [
       'Подключение к 1С, ERP, CRM',
       'Интеграция с ServiceDesk',
@@ -900,39 +1127,36 @@ export const AddonsSection: React.FC = () => {
 const packages = [
   {
     name: 'Pilot',
-    description: 'Проверка концепции на ограниченном объёме данных',
+    description: '2–3 недели: демо на ваших данных + отчёт по качеству и план масштабирования',
     features: [
-      '1-2 источника данных',
-      'До 50 пользователей',
-      'Базовая аналитика',
-      'Техническая поддержка',
+      '1–2 источника данных и 1 сценарий отдела',
+      'Критерии успеха и риски согласуем заранее',
+      'Отчёт по качеству ответов и рекомендациям',
+      'План внедрения и интеграций на следующий этап',
     ],
-    cta: 'Начать пилот',
+    cta: 'Запросить пилот',
     highlighted: false,
   },
   {
     name: 'Business',
-    description: 'Полноценное решение для среднего бизнеса',
+    description: 'Для запуска в продуктив: доступы, интеграции, обучение, поддержка',
     features: [
-      'До 10 источников данных',
-      'До 500 пользователей',
-      'Расширенная аналитика',
-      'Приоритетная поддержка',
-      'RBAC и SSO',
+      'SSO/RBAC и аудит запросов/ответов',
+      'Интеграции с ключевыми источниками',
+      'Обучение администраторов и пользователей',
+      'SLA и регламент сопровождения',
     ],
-    cta: 'Выбрать Business',
+    cta: 'Обсудить запуск',
     highlighted: true,
   },
   {
     name: 'Enterprise',
-    description: 'Кастомное решение под требования крупного бизнеса',
+    description: 'Под требования ИБ и инфраструктуры крупного бизнеса',
     features: [
-      'Неограниченные источники',
-      'Неограниченные пользователи',
-      'Кастомные интеграции',
-      'Выделенная поддержка',
-      'SLA и LLMOps',
-      'On-prem развёртывание',
+      'On-prem/частное облако, изолированные контуры',
+      'Аудит, пентест/редтиминг — по запросу',
+      'Интеграция с SIEM/логированием — по запросу',
+      'Выделенная команда и расширенные SLA',
     ],
     cta: 'Связаться с нами',
     highlighted: false,
@@ -982,10 +1206,11 @@ export const PackagesSection: React.FC = () => {
                 </ul>
               </div>
               <Button
+                asChild
                 variant={pkg.highlighted ? 'accent' : 'outline'}
                 className="w-full min-h-[48px]"
               >
-                {pkg.cta}
+                <a href="/#request-demo">{pkg.cta}</a>
               </Button>
             </Card>
           ))}
@@ -1235,16 +1460,19 @@ export const CTASection: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-              <Button variant="accent" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
-                Запросить демо
-                <ArrowRight className="w-5 h-5" aria-hidden="true" />
+              <Button asChild variant="accent" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
+                <a href="/#request-demo">
+                  Запросить демо
+                  <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                </a>
               </Button>
               <Button
+                asChild
                 variant="outline"
                 size="lg"
                 className="w-full sm:w-auto justify-center min-h-[52px] border-white/30 text-white hover:bg-white/10"
               >
-                Посмотреть кейсы
+                <a href="/#use-cases">Посмотреть кейсы</a>
               </Button>
             </div>
             
@@ -1285,6 +1513,26 @@ const faqItems = [
   {
     question: 'Как обеспечивается безопасность данных?',
     answer: 'Данные обрабатываются в контуре заказчика. Поддерживаем интеграцию с AD/LDAP для SSO, RBAC для разграничения доступа, полный аудит всех запросов и ответов.',
+  },
+  {
+    question: 'Где хранится индекс/вектора и как с шифрованием?',
+    answer: 'Развёртывание возможно в вашем контуре: индекс/векторное хранилище и документы остаются в выбранной инфраструктуре. Настройки шифрования at-rest/in-transit и доступов зависят от вашего контура и требований ИБ; на пилоте фиксируем целевую схему и политики.',
+  },
+  {
+    question: 'Что логируется и как долго хранится?',
+    answer: 'Обычно логируются запросы, метаданные пользователя/ролей, использованные источники и события системы (для аудита и расследований). Срок хранения и состав логов согласуются с ИБ и комплаенсом и могут настраиваться под политики заказчика.',
+  },
+  {
+    question: 'Можно ли запретить ответы из отдельных источников/папок?',
+    answer: 'Да, практичный подход — задавать политики источников: allow/deny по типам документов, папкам/пространствам и категориям. Это помогает контролировать, какие документы вообще могут участвовать в ответе.',
+  },
+  {
+    question: 'Как обновляются документы и как быстро изменения попадают в ответы?',
+    answer: 'Обновления зависят от источника: обычно настраивается периодическая синхронизация и переиндексация по изменениям. На пилоте согласуем частоту и SLA актуализации, чтобы ответ опирался на свежую версию документов.',
+  },
+  {
+    question: 'Как измеряете качество и что показываете на пилоте?',
+    answer: 'На пилоте удобно мерить качество по набору контрольных вопросов: доля ответов с корректными цитатами, покрытие сценариев и доля “нет ответа” (когда данных нет). По итогам формируем отчёт и план улучшений: источники, политики доступа, промпты/шаблоны, интеграции.',
   },
   {
     question: 'Что если ассистент даёт неправильный ответ?',
@@ -1386,10 +1634,10 @@ export const FAQSection: React.FC = () => {
 
 const footerLinks = {
   product: [
-    { label: 'Как работает', href: '#how-it-works' },
-    { label: 'Возможности', href: '#features' },
-    { label: 'Кейсы', href: '#use-cases' },
-    { label: 'Пакеты', href: '#packages' },
+    { label: 'Как работает', href: '/#how-it-works' },
+    { label: 'Возможности', href: '/#features' },
+    { label: 'Кейсы', href: '/#use-cases' },
+    { label: 'Пакеты', href: '/#packages' },
   ],
   company: [
     { label: 'О компании', href: '/about' },
@@ -1535,54 +1783,50 @@ export const Footer: React.FC = () => {
    REQUEST DEMO FORM
    ============================================ */
 
-const roleOptions = [
-  { value: 'cto', label: 'CTO / Технический директор' },
-  { value: 'cio', label: 'CIO / ИТ-директор' },
-  { value: 'ciso', label: 'CISO / Директор по ИБ' },
-  { value: 'product', label: 'Продакт-менеджер' },
-  { value: 'developer', label: 'Разработчик / Архитектор' },
-  { value: 'business', label: 'Бизнес-заказчик' },
-  { value: 'other', label: 'Другое' },
-];
-
-const deploymentOptions = [
-  { value: 'onprem', label: 'On-prem (свои серверы)' },
-  { value: 'cloud_ru', label: 'Облако РФ' },
-  { value: 'hybrid', label: 'Гибридный вариант' },
-  { value: 'unknown', label: 'Пока не знаю' },
-];
-
-const userCountOptions = [
-  { value: '1-50', label: 'До 50' },
-  { value: '50-200', label: '50–200' },
-  { value: '200-500', label: '200–500' },
-  { value: '500-1000', label: '500–1000' },
-  { value: '1000+', label: 'Более 1000' },
-];
-
-const dataSourceOptions = [
-  { id: 'confluence', label: 'Confluence' },
-  { id: 'sharepoint', label: 'SharePoint' },
-  { id: 'filesystem', label: 'Файловое хранилище' },
-  { id: '1c', label: '1С' },
-  { id: 'crm', label: 'CRM' },
-  { id: 'servicedesk', label: 'ServiceDesk' },
-  { id: 'other', label: 'Другое' },
-];
-
 export const RequestDemoForm: React.FC = () => {
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [resolvedIntent, setResolvedIntent] = React.useState<'demo' | 'one-pager'>('demo');
+
   const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const [mailDraft, setMailDraft] = React.useState<{ subject: string; body: string } | null>(null);
+  const [isCopied, setIsCopied] = React.useState(false);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setResolvedIntent(params.get('intent') === 'one-pager' ? 'one-pager' : 'demo');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setIsCopied(false);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const form = e.currentTarget;
+    const data = new FormData(form);
 
-    setIsSubmitting(false);
+    const intent = String(data.get('intent') || resolvedIntent || 'demo');
+    const subject =
+      intent === 'one-pager'
+        ? 'CORPRAG — Запрос one-pager (PDF)'
+        : 'CORPRAG — Запрос демо';
+
+    const lines = [
+      `Тип запроса: ${intent === 'one-pager' ? 'one-pager (PDF)' : 'демо'}`,
+      `Имя: ${String(data.get('name') || '')}`,
+      `Компания: ${String(data.get('company') || '')}`,
+      `Email: ${String(data.get('email') || '')}`,
+      `Телефон: ${String(data.get('phone') || '')}`,
+      '',
+      'Комментарий:',
+      String(data.get('comment') || ''),
+    ];
+
+    const body = lines.join('\n');
+    setMailDraft({ subject, body });
     setIsSubmitted(true);
+
+    const mailto = `mailto:hello@corprag.ru?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+    window.location.assign(mailto);
   };
 
   if (isSubmitted) {
@@ -1594,11 +1838,41 @@ export const RequestDemoForm: React.FC = () => {
               <CheckCircle2 className="w-8 h-8 text-accent-600" />
             </div>
             <h2 className="text-2xl font-bold text-primary-950 mb-4">
-              Заявка отправлена!
+              Почти готово
             </h2>
             <p className="text-primary-600 mb-8">
-              Мы свяжемся с вами в течение 1-2 рабочих дней для обсуждения демо.
+              Мы подготовили письмо для отправки на <span className="font-semibold text-primary-800">hello@corprag.ru</span>.
+              Если почтовый клиент не открылся автоматически — воспользуйтесь ссылкой ниже.
             </p>
+            <div className="space-y-3 max-w-md mx-auto">
+              <a
+                href={
+                  mailDraft
+                    ? `mailto:hello@corprag.ru?subject=${encodeURIComponent(
+                        mailDraft.subject
+                      )}&body=${encodeURIComponent(mailDraft.body)}`
+                    : 'mailto:hello@corprag.ru'
+                }
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-display font-semibold bg-accent-600 text-white hover:bg-accent-700 transition-colors min-h-[48px] w-full"
+              >
+                Открыть письмо
+                <ArrowRight className="w-5 h-5" aria-hidden="true" />
+              </a>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full min-h-[48px]"
+                onClick={async () => {
+                  if (!mailDraft) return;
+                  await navigator.clipboard.writeText(mailDraft.body);
+                  setIsCopied(true);
+                  window.setTimeout(() => setIsCopied(false), 1500);
+                }}
+                disabled={!mailDraft}
+              >
+                {isCopied ? 'Скопировано' : 'Скопировать текст заявки'}
+              </Button>
+            </div>
             <Button variant="outline" onClick={() => setIsSubmitted(false)}>
               Отправить ещё одну заявку
             </Button>
@@ -1614,88 +1888,31 @@ export const RequestDemoForm: React.FC = () => {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <Badge variant="accent" className="mb-4">
-              Запросить демо
+              {resolvedIntent === 'one-pager' ? 'One-pager (PDF)' : 'Запросить демо'}
             </Badge>
             <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
-              Покажем ассистента на ваших документах
+              {resolvedIntent === 'one-pager'
+                ? 'Пришлём one-pager (PDF) и предложим демо'
+                : 'Покажем ассистента на ваших документах'}
             </h2>
             <p className="text-lg text-primary-600">
-              Заполните форму — мы свяжемся в течение 1-2 рабочих дней
+              Оставьте контакты — обычно отвечаем в течение 1 рабочего дня
             </p>
           </div>
 
           <Card variant="elevated">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Row 1: Name + Company */}
+              <input type="hidden" name="intent" value={resolvedIntent} />
+
               <div className="grid md:grid-cols-2 gap-4">
-                <Input
-                  name="name"
-                  label="Имя *"
-                  placeholder="Иван Петров"
-                  required
-                />
-                <Input
-                  name="company"
-                  label="Компания *"
-                  placeholder="ООО «Компания»"
-                  required
-                />
+                <Input name="name" label="Имя *" placeholder="Иван Петров" required />
+                <Input name="company" label="Компания *" placeholder="ООО «Компания»" required />
               </div>
 
-              {/* Row 2: Role + Email */}
               <div className="grid md:grid-cols-2 gap-4">
-                <Select
-                  name="role"
-                  label="Роль *"
-                  options={roleOptions}
-                  required
-                />
-                <Input
-                  name="email"
-                  type="email"
-                  label="Email *"
-                  placeholder="ivan@company.ru"
-                  required
-                />
+                <Input name="email" type="email" label="Email *" placeholder="ivan@company.ru" required />
+                <Input name="phone" type="tel" label="Телефон *" placeholder="+7 (___) ___-__-__" required />
               </div>
-
-              {/* Row 3: Telegram + Deployment */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <Input
-                  name="telegram"
-                  label="Telegram"
-                  placeholder="@username"
-                />
-                <Select
-                  name="deployment"
-                  label="Контур развёртывания *"
-                  options={deploymentOptions}
-                  required
-                />
-              </div>
-
-              {/* Row 4: User count */}
-              <Select
-                name="users"
-                label="Количество пользователей"
-                options={userCountOptions}
-              />
-
-              {/* Data sources */}
-              <fieldset>
-                <legend className="block font-display text-sm font-semibold text-primary-800 mb-3">
-                  Источники данных
-                </legend>
-                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3">
-                  {dataSourceOptions.map((source) => (
-                    <Checkbox
-                      key={source.id}
-                      name={`source_${source.id}`}
-                      label={source.label}
-                    />
-                  ))}
-                </div>
-              </fieldset>
 
               {/* Comment */}
               <Textarea
@@ -1718,19 +1935,9 @@ export const RequestDemoForm: React.FC = () => {
                 variant="accent"
                 size="lg"
                 className="w-full"
-                disabled={isSubmitting}
               >
-                {isSubmitting ? (
-                  <>
-                    <span className="animate-spin">⏳</span>
-                    Отправляем...
-                  </>
-                ) : (
-                  <>
-                    Отправить заявку
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
+                Отправить заявку
+                <ArrowRight className="w-5 h-5" />
               </Button>
 
               <p className="text-xs text-primary-500 text-center">

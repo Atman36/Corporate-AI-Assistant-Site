@@ -20,6 +20,7 @@ import {
   SecuritySection,
   FAQSection,
   CTASection,
+  RequestDemoForm,
   Footer,
 } from '../sections';
 
@@ -72,8 +73,11 @@ export default function HomePage() {
         {/* 11. FAQ (has own id) */}
         <FAQSection />
 
-        {/* 12. Final CTA */}
+        {/* 12. CTA */}
         <CTASection />
+
+        {/* 13. Request Demo Form */}
+        <RequestDemoForm />
       </main>
 
       {/* Footer */}
@@ -81,4 +85,3 @@ export default function HomePage() {
     </>
   );
 }
-
