@@ -11,8 +11,6 @@
  * 4. Анимации — сдержанные, но заметные
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -70,8 +68,8 @@
   
   /* === ТИПОГРАФИКА === */
   
-  --font-display: 'Manrope', system-ui, sans-serif;
-  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-display: var(--font-manrope), system-ui, sans-serif;
+  --font-body: var(--font-source-sans-3), system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   
   /* Type Scale (Major Third — 1.25) */
@@ -366,6 +364,7 @@
   .btn-primary:hover {
     background-color: rgb(var(--color-primary-800));
     box-shadow: var(--shadow-lg);
+    color: white; /* prevent global a:hover from overriding */
   }
   
   .btn-accent {
@@ -377,6 +376,7 @@
   .btn-accent:hover {
     background-color: rgb(var(--color-accent-700));
     box-shadow: var(--shadow-lg), var(--shadow-glow);
+    color: white; /* prevent global a:hover from overriding */
   }
   
   .btn-outline {

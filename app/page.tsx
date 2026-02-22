@@ -35,11 +35,11 @@ export default function HomePage() {
         {/* 1. Hero Section */}
         <HeroSection />
 
-        {/* 2. Social Proof */}
-        <SocialProofSection />
-
-        {/* 3. Problem → Solution */}
+        {/* 2. Problem → Solution */}
         <ProblemSolutionSection />
+
+        {/* 3. Social Proof */}
+        <SocialProofSection />
 
         {/* 4. How It Works */}
         <div id="how-it-works">

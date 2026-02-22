@@ -22,6 +22,10 @@ import {
   Checkbox,
 } from './ui';
 import {
+  type LeadFieldErrors,
+  validateLeadPayload,
+} from '@/lib/lead-form';
+import {
   FileText,
   Shield,
   Lock,
@@ -55,6 +59,7 @@ import {
   Linkedin,
   Plus,
   Minus,
+  Loader2,
 } from 'lucide-react';
 
 /* ============================================
@@ -352,17 +357,40 @@ export const HeroSection: React.FC = () => {
               id="hero-heading"
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter text-primary-950 mb-4 sm:mb-6"
             >
-              Корпоративный{' '}
-              <span className="text-gradient">AI-ассистент</span>{' '}
-              в закрытом контуре
+              Найдите ответы в корпоративных документах за минуты, а не за часы
             </h1>
             
             <p className="text-base sm:text-lg lg:text-xl text-primary-700 leading-relaxed mb-6 sm:mb-8">
-              Отвечает по вашим документам{' '}
-              <strong className="text-primary-900">с цитатами и ссылками</strong>{' '}
-              — с учётом <strong className="text-primary-900">RBAC/SSO</strong> и аудит-логом.
-              Развёртывание: on-prem или облако РФ.
+              Ассистент даёт ответ по вашим данным с указанием источников.
+              Поддерживаем on-prem и частное облако, доступы и аудит настраиваются под ваши политики.
             </p>
+
+            <div className="grid gap-3 mb-6 sm:mb-8">
+              <div className="rounded-xl border border-red-200/70 bg-red-50/60 px-4 py-3">
+                <p className="text-xs uppercase tracking-wide text-red-700 font-display font-semibold mb-1">Проблема</p>
+                <p className="text-sm text-primary-700">
+                  Сотрудники ищут регламенты вручную и теряют рабочее время.
+                </p>
+              </div>
+              <div className="rounded-xl border border-accent-200/70 bg-accent-50/70 px-4 py-3">
+                <p className="text-xs uppercase tracking-wide text-accent-700 font-display font-semibold mb-1">Решение</p>
+                <p className="text-sm text-primary-700">
+                  Один чат для корпоративных знаний: вопросы в свободной форме и проверяемые ответы.
+                </p>
+              </div>
+              <div className="rounded-xl border border-primary-200 bg-white/80 px-4 py-3">
+                <p className="text-xs uppercase tracking-wide text-primary-700 font-display font-semibold mb-1">Доказательство</p>
+                <p className="text-sm text-primary-700">
+                  На пилоте показываем путь от вопроса до исходного документа и фиксируем процесс внедрения по этапам.
+                </p>
+              </div>
+              <div className="rounded-xl border border-primary-200 bg-white/80 px-4 py-3">
+                <p className="text-xs uppercase tracking-wide text-primary-700 font-display font-semibold mb-1">CTA</p>
+                <p className="text-sm text-primary-700">
+                  Оставьте заявку и получите план пилота под ваш контур безопасности.
+                </p>
+              </div>
+            </div>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button
@@ -389,7 +417,7 @@ export const HeroSection: React.FC = () => {
             <div className="mt-4 text-sm text-primary-600 flex flex-wrap gap-x-3 gap-y-1">
               <span>Цитаты и источники</span>
               <span aria-hidden="true">·</span>
-              <span>RBAC/SSO</span>
+              <span>NDA и контроль доступа</span>
               <span aria-hidden="true">·</span>
               <span>Аудит и логи</span>
             </div>
@@ -565,6 +593,14 @@ export const SocialProofSection: React.FC = () => {
           <p className="mt-6 text-xs text-primary-400">
             Логотипы некоторых клиентов скрыты по условиям NDA
           </p>
+          <div className="mt-6 max-w-xl mx-auto rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-left">
+            <p className="text-xs font-display font-semibold uppercase tracking-wide text-primary-600 mb-1">
+              Опыт команды
+            </p>
+            <p className="text-sm text-primary-700">
+              10+ лет в IT, 4 года с AI <span className="font-semibold text-primary-900">[UNVERIFIED]</span>
+            </p>
+          </div>
         </div>
       </Container>
     </Section>
@@ -1319,24 +1355,24 @@ export const TimelineSection: React.FC = () => {
 
 const securityItems = [
   {
-    title: 'Развёртывание в контуре',
-    description: 'On-prem на серверах заказчика или в частном облаке РФ. Данные не покидают периметр.',
+    title: 'On-prem и частное облако',
+    description: 'Помогаем развернуть решение в вашем контуре: on-prem, частное облако или гибридная схема.',
     icon: Shield,
   },
   {
-    title: 'Контроль доступа (RBAC)',
-    description: 'Интеграция с AD/LDAP. Ответы только по документам, доступным роли пользователя.',
+    title: 'NDA и процесс доступа',
+    description: 'Фиксируем правила работы с данными, доступами и ответственностью в рамках NDA и внутренних политик.',
+    icon: Scale,
+  },
+  {
+    title: 'RBAC/SSO',
+    description: 'Интеграция с AD/LDAP и разграничение доступа по ролям. Пользователь видит только разрешённые материалы.',
     icon: Lock,
   },
   {
     title: 'Аудит и логирование',
-    description: 'Журнал всех запросов и ответов. Кто, когда, что спросил — полная прозрачность.',
+    description: 'События доступа и работы ассистента можно передавать в ваши процессы контроля и расследований.',
     icon: FileText,
-  },
-  {
-    title: 'LLMOps и мониторинг',
-    description: 'Контроль качества ответов, метрики, оповещения. Red-teaming и обновления.',
-    icon: Settings,
   },
 ];
 
@@ -1365,8 +1401,7 @@ export const SecuritySection: React.FC = () => {
             </h2>
             
             <p className="text-base sm:text-lg text-primary-300 mb-6 sm:mb-8">
-              Архитектура, которая соответствует требованиям Enterprise:
-              изоляция данных, контроль доступа, полный аудит.
+              Базовый контур под enterprise-требования: варианты развёртывания, NDA, RBAC/SSO и аудит событий.
             </p>
             
             <Button variant="accent" size="lg" className="w-full sm:w-auto justify-center min-h-[52px]">
@@ -1783,50 +1818,129 @@ export const Footer: React.FC = () => {
    REQUEST DEMO FORM
    ============================================ */
 
+function mapLeadApiError(code?: string): string {
+  switch (code) {
+    case 'RATE_LIMITED':
+      return 'Слишком много попыток отправки. Подождите немного и попробуйте снова.';
+    case 'CSRF_MISMATCH':
+      return 'Сессия формы обновилась. Повторите отправку заявки.';
+    case 'TELEGRAM_NOT_CONFIGURED':
+    case 'TELEGRAM_UNAVAILABLE':
+      return 'Сервис приёма заявок временно недоступен. Попробуйте позже или напишите на hello@corprag.ru.';
+    case 'FORBIDDEN_ORIGIN':
+      return 'Запрос отклонён политикой безопасности. Откройте форму напрямую на сайте.';
+    default:
+      return 'Не удалось отправить заявку. Проверьте поля и повторите попытку.';
+  }
+}
+
 export const RequestDemoForm: React.FC = () => {
   const [resolvedIntent, setResolvedIntent] = React.useState<'demo' | 'one-pager'>('demo');
-
+  const [csrfToken, setCsrfToken] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSubmitted, setIsSubmitted] = React.useState(false);
-  const [mailDraft, setMailDraft] = React.useState<{ subject: string; body: string } | null>(null);
-  const [isCopied, setIsCopied] = React.useState(false);
+  const [requestId, setRequestId] = React.useState<string | null>(null);
+  const [formError, setFormError] = React.useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = React.useState<LeadFieldErrors>({});
+
+  const loadCsrfToken = React.useCallback(async () => {
+    try {
+      const response = await fetch('/api/leads/csrf', {
+        method: 'GET',
+        cache: 'no-store',
+      });
+      if (!response.ok) {
+        setFormError('Не удалось подготовить защищённую форму. Обновите страницу.');
+        return false;
+      }
+      const payload = (await response.json()) as { csrfToken?: string };
+      if (!payload.csrfToken) {
+        setFormError('Не удалось подготовить защищённую форму. Обновите страницу.');
+        return false;
+      }
+      setCsrfToken(payload.csrfToken);
+      return true;
+    } catch {
+      setFormError('Проблема соединения. Проверьте интернет и попробуйте снова.');
+      return false;
+    }
+  }, []);
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setResolvedIntent(params.get('intent') === 'one-pager' ? 'one-pager' : 'demo');
-  }, []);
+    void loadCsrfToken();
+  }, [loadCsrfToken]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsCopied(false);
+    if (isSubmitting) return;
+
+    setFormError(null);
+    setFieldErrors({});
 
     const form = e.currentTarget;
     const data = new FormData(form);
+    const payload = {
+      intent: String(data.get('intent') || resolvedIntent || 'demo'),
+      name: String(data.get('name') || ''),
+      company: String(data.get('company') || ''),
+      email: String(data.get('email') || ''),
+      phone: String(data.get('phone') || ''),
+      comment: String(data.get('comment') || ''),
+      privacy: data.get('privacy') === 'on',
+      csrfToken,
+      website: String(data.get('website') || ''),
+    };
 
-    const intent = String(data.get('intent') || resolvedIntent || 'demo');
-    const subject =
-      intent === 'one-pager'
-        ? 'CORPRAG — Запрос one-pager (PDF)'
-        : 'CORPRAG — Запрос демо';
+    const validation = validateLeadPayload(payload);
+    if (!validation.ok || !validation.data) {
+      setFieldErrors(validation.errors);
+      setFormError('Пожалуйста, исправьте ошибки в форме.');
+      if (validation.errors.csrfToken) {
+        await loadCsrfToken();
+      }
+      return;
+    }
 
-    const lines = [
-      `Тип запроса: ${intent === 'one-pager' ? 'one-pager (PDF)' : 'демо'}`,
-      `Имя: ${String(data.get('name') || '')}`,
-      `Компания: ${String(data.get('company') || '')}`,
-      `Email: ${String(data.get('email') || '')}`,
-      `Телефон: ${String(data.get('phone') || '')}`,
-      '',
-      'Комментарий:',
-      String(data.get('comment') || ''),
-    ];
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        cache: 'no-store',
+        body: JSON.stringify(validation.data),
+      });
 
-    const body = lines.join('\n');
-    setMailDraft({ subject, body });
-    setIsSubmitted(true);
+      const responsePayload = (await response.json().catch(() => null)) as
+        | {
+            ok?: boolean;
+            requestId?: string;
+            error?: { code?: string; fields?: LeadFieldErrors };
+          }
+        | null;
 
-    const mailto = `mailto:hello@corprag.ru?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(body)}`;
-    window.location.assign(mailto);
+      if (!response.ok || !responsePayload?.ok) {
+        setFieldErrors(responsePayload?.error?.fields ?? {});
+        setFormError(mapLeadApiError(responsePayload?.error?.code));
+        if (responsePayload?.error?.code === 'CSRF_MISMATCH') {
+          await loadCsrfToken();
+        }
+        return;
+      }
+
+      setRequestId(responsePayload.requestId ?? null);
+      setIsSubmitted(true);
+      form.reset();
+      await loadCsrfToken();
+    } catch {
+      setFormError('Не удалось отправить заявку из-за сетевой ошибки. Повторите попытку.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -1835,45 +1949,30 @@ export const RequestDemoForm: React.FC = () => {
         <Container size="narrow">
           <Card variant="elevated" className="max-w-2xl mx-auto text-center py-12">
             <div className="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-8 h-8 text-accent-600" />
+              <CheckCircle2 className="w-8 h-8 text-accent-600" aria-hidden="true" />
             </div>
             <h2 className="text-2xl font-bold text-primary-950 mb-4">
-              Почти готово
+              Заявка отправлена
             </h2>
             <p className="text-primary-600 mb-8">
-              Мы подготовили письмо для отправки на <span className="font-semibold text-primary-800">hello@corprag.ru</span>.
-              Если почтовый клиент не открылся автоматически — воспользуйтесь ссылкой ниже.
+              {resolvedIntent === 'one-pager'
+                ? 'Спасибо. Мы отправим one-pager и свяжемся для согласования демо.'
+                : 'Спасибо. Мы свяжемся с вами для согласования демо на ваших данных.'}
             </p>
-            <div className="space-y-3 max-w-md mx-auto">
-              <a
-                href={
-                  mailDraft
-                    ? `mailto:hello@corprag.ru?subject=${encodeURIComponent(
-                        mailDraft.subject
-                      )}&body=${encodeURIComponent(mailDraft.body)}`
-                    : 'mailto:hello@corprag.ru'
-                }
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-display font-semibold bg-accent-600 text-white hover:bg-accent-700 transition-colors min-h-[48px] w-full"
-              >
-                Открыть письмо
-                <ArrowRight className="w-5 h-5" aria-hidden="true" />
-              </a>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full min-h-[48px]"
-                onClick={async () => {
-                  if (!mailDraft) return;
-                  await navigator.clipboard.writeText(mailDraft.body);
-                  setIsCopied(true);
-                  window.setTimeout(() => setIsCopied(false), 1500);
-                }}
-                disabled={!mailDraft}
-              >
-                {isCopied ? 'Скопировано' : 'Скопировать текст заявки'}
-              </Button>
-            </div>
-            <Button variant="outline" onClick={() => setIsSubmitted(false)}>
+            {requestId && (
+              <p className="text-xs text-primary-500 mb-8">
+                ID заявки: <span className="font-mono text-primary-700">{requestId}</span>
+              </p>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsSubmitted(false);
+                setRequestId(null);
+                setFieldErrors({});
+                setFormError(null);
+              }}
+            >
               Отправить ещё одну заявку
             </Button>
           </Card>
@@ -1892,52 +1991,123 @@ export const RequestDemoForm: React.FC = () => {
             </Badge>
             <h2 className="text-3xl lg:text-4xl font-bold text-primary-950 mb-4">
               {resolvedIntent === 'one-pager'
-                ? 'Пришлём one-pager (PDF) и предложим демо'
+                ? 'Пришлём one-pager и согласуем демо'
                 : 'Покажем ассистента на ваших документах'}
             </h2>
             <p className="text-lg text-primary-600">
-              Оставьте контакты — обычно отвечаем в течение 1 рабочего дня
+              Оставьте контакты. Обычно отвечаем в течение 1 рабочего дня.
             </p>
           </div>
 
           <Card variant="elevated">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate aria-busy={isSubmitting}>
               <input type="hidden" name="intent" value={resolvedIntent} />
+              <input type="hidden" name="csrfToken" value={csrfToken} />
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <Input name="name" label="Имя *" placeholder="Иван Петров" required />
-                <Input name="company" label="Компания *" placeholder="ООО «Компания»" required />
+              <div className="sr-only" aria-hidden="true">
+                <label htmlFor="website">Ваш сайт</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <Input name="email" type="email" label="Email *" placeholder="ivan@company.ru" required />
-                <Input name="phone" type="tel" label="Телефон *" placeholder="+7 (___) ___-__-__" required />
+                <Input
+                  id="lead-name"
+                  name="name"
+                  label="Имя *"
+                  placeholder="Иван Петров"
+                  autoComplete="name"
+                  maxLength={80}
+                  required
+                  error={fieldErrors.name}
+                  disabled={isSubmitting}
+                />
+                <Input
+                  id="lead-company"
+                  name="company"
+                  label="Компания *"
+                  placeholder="ООО «Компания»"
+                  autoComplete="organization"
+                  maxLength={120}
+                  required
+                  error={fieldErrors.company}
+                  disabled={isSubmitting}
+                />
               </div>
 
-              {/* Comment */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <Input
+                  id="lead-email"
+                  name="email"
+                  type="email"
+                  label="Email *"
+                  placeholder="ivan@company.ru"
+                  autoComplete="email"
+                  inputMode="email"
+                  maxLength={254}
+                  required
+                  error={fieldErrors.email}
+                  disabled={isSubmitting}
+                />
+                <Input
+                  id="lead-phone"
+                  name="phone"
+                  type="tel"
+                  label="Телефон *"
+                  placeholder="+7 (999) 123-45-67"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  pattern="^[0-9+()\-\s]{10,24}$"
+                  maxLength={24}
+                  required
+                  error={fieldErrors.phone}
+                  disabled={isSubmitting}
+                />
+              </div>
+
               <Textarea
+                id="lead-comment"
                 name="comment"
                 label="Комментарий"
-                placeholder="Расскажите о вашей задаче..."
+                placeholder="Коротко опишите задачу и контур (on-prem/облако)."
                 rows={4}
+                maxLength={1200}
+                error={fieldErrors.comment}
+                disabled={isSubmitting}
               />
 
-              {/* Privacy consent */}
               <Checkbox
+                id="lead-privacy"
                 name="privacy"
-                label="Я согласен на обработку персональных данных в соответствии с политикой конфиденциальности *"
+                label="Я согласен на обработку персональных данных *"
                 required
+                error={fieldErrors.privacy}
+                disabled={isSubmitting}
               />
 
-              {/* Submit */}
+              {formError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3" role="alert">
+                  <p className="text-sm text-red-700">{formError}</p>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 variant="accent"
                 size="lg"
                 className="w-full"
+                disabled={isSubmitting}
               >
-                Отправить заявку
-                <ArrowRight className="w-5 h-5" />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+                    Отправляем...
+                  </>
+                ) : (
+                  <>
+                    Отправить заявку
+                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                  </>
+                )}
               </Button>
 
               <p className="text-xs text-primary-500 text-center">
@@ -1945,6 +2115,7 @@ export const RequestDemoForm: React.FC = () => {
                 <a href="/legal/privacy" className="underline hover:text-accent-600">
                   политикой конфиденциальности
                 </a>
+                .
               </p>
             </form>
           </Card>

@@ -23,6 +23,14 @@
 npm install class-variance-authority clsx tailwind-merge lucide-react
 ```
 
+### Настройка приёма заявок
+
+1. Скопируйте `.env.example` в `.env.local`.
+2. Заполните `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`.
+3. При необходимости добавьте `FORM_ALLOWED_ORIGINS` (через запятую) для дополнительных доменов.
+
+Форма отправляет заявки через `POST /api/leads` с CSRF-проверкой, rate-limit и honeypot.
+
 ### Подключение
 
 1. Скопируйте `globals.css` в `app/globals.css`

@@ -32,8 +32,8 @@ export default function PrivacyPolicyPage() {
                   Какие данные собираем
                 </h2>
                 <p className="text-sm sm:text-base text-primary-700 leading-relaxed">
-                  При заполнении формы на сайте мы можем получить: имя, компанию, email, телефон и комментарий. Эти данные нужны, чтобы связаться с вами,
-                  согласовать демо и/или отправить one-pager (PDF).
+                  При заполнении формы мы запрашиваем: имя, компанию, email, телефон и комментарий к задаче. Эти данные используются только для связи,
+                  согласования демо и/или отправки one-pager (PDF) по вашему запросу.
                 </p>
               </section>
 
@@ -50,11 +50,21 @@ export default function PrivacyPolicyPage() {
 
               <section>
                 <h2 className="font-display font-semibold text-base text-primary-900 mb-2">
-                  Срок хранения и безопасность
+                  Куда поступает заявка
                 </h2>
                 <p className="text-sm sm:text-base text-primary-700 leading-relaxed">
-                  Мы храним данные столько, сколько необходимо для обработки запроса и коммуникации, и применяем разумные меры защиты в рамках выбранных
-                  процессов и инфраструктуры.
+                  Заявка передаётся через защищённый серверный endpoint и уходит в рабочий Telegram-канал/чат команды для оперативной обработки.
+                  Мы не публикуем ваши данные и не используем их для сторонних рекламных рассылок.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="font-display font-semibold text-base text-primary-900 mb-2">
+                  Срок хранения и права пользователя
+                </h2>
+                <p className="text-sm sm:text-base text-primary-700 leading-relaxed">
+                  Данные хранятся только на срок, необходимый для обработки обращения и рабочих коммуникаций. Вы можете запросить уточнение, экспорт или удаление
+                  данных, написав на контактный email ниже.
                 </p>
               </section>
 
@@ -82,4 +92,3 @@ export default function PrivacyPolicyPage() {
     </>
   );
 }
-

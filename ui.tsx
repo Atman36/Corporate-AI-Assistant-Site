@@ -28,11 +28,11 @@ const buttonVariants = cva(
       variant: {
         primary: `
           bg-primary-900 text-white shadow-primary
-          hover:bg-primary-800 hover:shadow-lg
+          hover:bg-primary-800 hover:shadow-lg hover:text-white
         `,
         accent: `
           bg-accent-600 text-white shadow-accent
-          hover:bg-accent-700 hover:shadow-lg hover:shadow-glow
+          hover:bg-accent-700 hover:shadow-lg hover:shadow-glow hover:text-white
         `,
         outline: `
           bg-transparent text-primary-900
@@ -301,6 +301,8 @@ export interface InputProps
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const inputId = id || props.name;
+    const errorId = error ? `${inputId}-error` : undefined;
+    const describedBy = [props['aria-describedby'], errorId].filter(Boolean).join(' ') || undefined;
     
     return (
       <div className="w-full">
@@ -315,6 +317,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           id={inputId}
           ref={ref}
+          {...props}
+          aria-invalid={Boolean(error) || props['aria-invalid']}
+          aria-describedby={describedBy}
           className={cn(
             `w-full px-4 py-3 font-body text-base
              text-primary-900 bg-white
@@ -327,10 +332,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             error && 'border-error focus:border-error',
             className
           )}
-          {...props}
         />
         {error && (
-          <p className="mt-1.5 text-sm text-error">{error}</p>
+          <p id={errorId} className="mt-1.5 text-sm text-error">
+            {error}
+          </p>
         )}
       </div>
     );
@@ -351,6 +357,8 @@ export interface TextareaProps
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const textareaId = id || props.name;
+    const errorId = error ? `${textareaId}-error` : undefined;
+    const describedBy = [props['aria-describedby'], errorId].filter(Boolean).join(' ') || undefined;
     
     return (
       <div className="w-full">
@@ -365,6 +373,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           id={textareaId}
           ref={ref}
+          {...props}
+          aria-invalid={Boolean(error) || props['aria-invalid']}
+          aria-describedby={describedBy}
           className={cn(
             `w-full px-4 py-3 font-body text-base
              text-primary-900 bg-white
@@ -378,10 +389,11 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             error && 'border-error focus:border-error',
             className
           )}
-          {...props}
         />
         {error && (
-          <p className="mt-1.5 text-sm text-error">{error}</p>
+          <p id={errorId} className="mt-1.5 text-sm text-error">
+            {error}
+          </p>
         )}
       </div>
     );
@@ -460,6 +472,8 @@ export interface CheckboxProps
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, label, error, id, ...props }, ref) => {
     const checkboxId = id || props.name;
+    const errorId = error ? `${checkboxId}-error` : undefined;
+    const describedBy = [props['aria-describedby'], errorId].filter(Boolean).join(' ') || undefined;
 
     return (
       <div className="w-full">
@@ -474,6 +488,9 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             type="checkbox"
             id={checkboxId}
             ref={ref}
+            {...props}
+            aria-invalid={Boolean(error) || props['aria-invalid']}
+            aria-describedby={describedBy}
             className={cn(
               `w-5 h-5 mt-0.5 shrink-0
                border-[1.5px] border-neutral-300 rounded
@@ -483,14 +500,15 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
                cursor-pointer`,
               error && 'border-error'
             )}
-            {...props}
           />
           <span className="text-sm text-primary-700 leading-snug group-hover:text-primary-900">
             {label}
           </span>
         </label>
         {error && (
-          <p className="mt-1.5 text-sm text-error">{error}</p>
+          <p id={errorId} className="mt-1.5 text-sm text-error">
+            {error}
+          </p>
         )}
       </div>
     );
