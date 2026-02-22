@@ -35,8 +35,8 @@ const buttonVariants = cva(
           hover:bg-accent-700 hover:shadow-lg hover:shadow-glow
         `,
         outline: `
-          bg-transparent text-primary-900 
-          border-[1.5px] border-primary-300
+          bg-transparent text-primary-900
+          border-[1.5px] border-solid border-primary-300
           hover:bg-primary-50 hover:border-primary-400
         `,
         ghost: `
@@ -84,15 +84,12 @@ export const Button = React.forwardRef<
   const classes = cn(buttonVariants({ variant, size, className }));
 
   if (asChild) {
-    return (
-      <a
-        className={classes}
-        ref={ref as React.ForwardedRef<HTMLAnchorElement>}
-        {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-      >
-        {children}
-      </a>
-    );
+    const child = React.Children.only(children) as React.ReactElement<React.HTMLAttributes<HTMLElement>>;
+    return React.cloneElement(child, {
+      ...(props as React.HTMLAttributes<HTMLElement>),
+      className: cn(classes, child.props.className),
+      ref: ref as React.ForwardedRef<HTMLElement>,
+    } as React.HTMLAttributes<HTMLElement>);
   }
 
   return (
