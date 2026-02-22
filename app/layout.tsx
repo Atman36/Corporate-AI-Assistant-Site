@@ -34,8 +34,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
-      <body className={`${manrope.variable} ${sourceSans3.variable}`}>{children}</body>
+    <html lang="ru" className={`${manrope.variable} ${sourceSans3.variable}`}>
+      <body className="font-body">{children}</body>
     </html>
   );
 }

@@ -68,8 +68,8 @@
   
   /* === ТИПОГРАФИКА === */
   
-  --font-display: var(--font-manrope), system-ui, sans-serif;
-  --font-body: var(--font-source-sans-3), system-ui, sans-serif;
+  --font-display: var(--font-manrope, 'Manrope'), system-ui, sans-serif;
+  --font-body: var(--font-source-sans-3, 'Source Sans 3'), system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   
   /* Type Scale (Major Third — 1.25) */
@@ -187,6 +187,7 @@
     background-color: rgb(var(--color-neutral-50));
     color: rgb(var(--color-primary-900));
     min-height: 100vh;
+    overflow-x: clip;
   }
   
   /* Headings — Manrope */

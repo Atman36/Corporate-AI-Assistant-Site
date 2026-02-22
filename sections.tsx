@@ -130,8 +130,8 @@ export const Header: React.FC = () => {
         fixed top-0 left-0 right-0 z-sticky
         transition-all duration-normal
         ${isScrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm'
-          : 'bg-transparent'
+          ? 'bg-white/98 backdrop-blur-md shadow-sm border-b border-neutral-200/80'
+          : 'bg-white/92 backdrop-blur-md border-b border-neutral-200/70'
         }
       `}
       role="banner"
@@ -337,7 +337,7 @@ export const HeroSection: React.FC = () => {
   const activeSource = activeScenario.sources[activeSourceIndex];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-hero py-16 sm:py-20 lg:py-32" aria-labelledby="hero-heading">
+    <section className="relative overflow-hidden bg-gradient-hero py-14 sm:py-16 lg:py-20" aria-labelledby="hero-heading">
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-1/2 h-full opacity-30 pointer-events-none" aria-hidden="true">
         <div className="absolute top-20 right-20 w-96 h-96 bg-accent-200 rounded-full blur-3xl" />
@@ -345,9 +345,9 @@ export const HeroSection: React.FC = () => {
       </div>
       
       <Container className="relative z-10">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-8 lg:gap-12 items-start">
           {/* Left: Content */}
-          <div className="max-w-xl">
+          <div className="min-w-0 max-w-[560px]">
             <Badge variant="accent" className="mb-4 sm:mb-6">
               <Lock className="w-3 h-3" aria-hidden="true" />
               Закрытый контур
@@ -355,39 +355,39 @@ export const HeroSection: React.FC = () => {
             
             <h1 
               id="hero-heading"
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter text-primary-950 mb-4 sm:mb-6"
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tighter leading-tight text-primary-950 mb-4 sm:mb-5"
             >
               Найдите ответы в корпоративных документах за минуты, а не за часы
             </h1>
             
-            <p className="text-base sm:text-lg lg:text-xl text-primary-700 leading-relaxed mb-6 sm:mb-8">
+            <p className="text-base sm:text-lg text-primary-700 leading-relaxed mb-5 sm:mb-6">
               Ассистент даёт ответ по вашим данным с указанием источников.
               Поддерживаем on-prem и частное облако, доступы и аудит настраиваются под ваши политики.
             </p>
 
-            <div className="grid gap-3 mb-6 sm:mb-8">
-              <div className="rounded-xl border border-red-200/70 bg-red-50/60 px-4 py-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              <div className="rounded-xl border border-red-200/70 bg-red-50/60 px-4 py-3 min-w-0">
                 <p className="text-xs uppercase tracking-wide text-red-700 font-display font-semibold mb-1">Проблема</p>
-                <p className="text-sm text-primary-700">
-                  Сотрудники ищут регламенты вручную и теряют рабочее время.
+                <p className="text-sm text-primary-700 leading-snug">
+                  Поиск регламентов вручную занимает часы.
                 </p>
               </div>
-              <div className="rounded-xl border border-accent-200/70 bg-accent-50/70 px-4 py-3">
+              <div className="rounded-xl border border-accent-200/70 bg-accent-50/70 px-4 py-3 min-w-0">
                 <p className="text-xs uppercase tracking-wide text-accent-700 font-display font-semibold mb-1">Решение</p>
-                <p className="text-sm text-primary-700">
-                  Один чат для корпоративных знаний: вопросы в свободной форме и проверяемые ответы.
+                <p className="text-sm text-primary-700 leading-snug">
+                  Один чат для знаний с ответами по источникам.
                 </p>
               </div>
-              <div className="rounded-xl border border-primary-200 bg-white/80 px-4 py-3">
+              <div className="rounded-xl border border-primary-200 bg-white/80 px-4 py-3 min-w-0">
                 <p className="text-xs uppercase tracking-wide text-primary-700 font-display font-semibold mb-1">Доказательство</p>
-                <p className="text-sm text-primary-700">
-                  На пилоте показываем путь от вопроса до исходного документа и фиксируем процесс внедрения по этапам.
+                <p className="text-sm text-primary-700 leading-snug">
+                  На пилоте показываем путь от вопроса до исходника.
                 </p>
               </div>
-              <div className="rounded-xl border border-primary-200 bg-white/80 px-4 py-3">
+              <div className="rounded-xl border border-primary-200 bg-white/80 px-4 py-3 min-w-0">
                 <p className="text-xs uppercase tracking-wide text-primary-700 font-display font-semibold mb-1">CTA</p>
-                <p className="text-sm text-primary-700">
-                  Оставьте заявку и получите план пилота под ваш контур безопасности.
+                <p className="text-sm text-primary-700 leading-snug">
+                  Оставьте заявку и получите план пилота.
                 </p>
               </div>
             </div>
@@ -421,22 +421,11 @@ export const HeroSection: React.FC = () => {
               <span aria-hidden="true">·</span>
               <span>Аудит и логи</span>
             </div>
-            
-            {/* Trust indicators */}
-            <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-neutral-200">
-              <p className="text-sm text-primary-500 mb-3">Доверяют нам</p>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-8 opacity-50">
-                {/* Placeholder logos - заменить на реальные */}
-                <div className="h-6 sm:h-8 w-20 sm:w-24 bg-primary-300 rounded" role="img" aria-label="Логотип клиента 1" />
-                <div className="h-6 sm:h-8 w-16 sm:w-20 bg-primary-300 rounded" role="img" aria-label="Логотип клиента 2" />
-                <div className="h-6 sm:h-8 w-24 sm:w-28 bg-primary-300 rounded" role="img" aria-label="Логотип клиента 3" />
-              </div>
-            </div>
           </div>
           
           {/* Right: Product Mock */}
-          <div className="relative mt-8 lg:mt-0">
-            <div className="relative bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden">
+          <div className="relative mt-2 lg:mt-0 min-w-0 lg:max-w-[620px] lg:ml-auto">
+            <div className="relative bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden max-w-full">
               {/* Chat header */}
               <div className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-4 bg-primary-50 border-b border-neutral-200">
                 <div className="w-3 h-3 rounded-full bg-red-400" aria-hidden="true" />
@@ -477,7 +466,7 @@ export const HeroSection: React.FC = () => {
 
                 {/* User message */}
                 <div className="flex justify-end">
-                  <div className="bg-primary-900 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-br-sm max-w-[85%] text-sm sm:text-base">
+                  <div className="bg-primary-900 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-2xl rounded-br-sm max-w-[85%] text-sm sm:text-base break-words">
                     {activeScenario.question}
                   </div>
                 </div>
@@ -547,14 +536,14 @@ export const HeroSection: React.FC = () => {
               </div>
             </div>
             
-            {/* Floating badges - hidden on mobile/tablet to prevent overflow */}
-            <div className="hidden xl:block absolute -right-4 top-1/4 transform translate-x-1/2">
+            {/* Floating badges */}
+            <div className="hidden xl:block absolute right-3 top-5">
               <div className="bg-white shadow-lg rounded-lg px-3 py-2 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-green-600" aria-hidden="true" />
                 <span className="text-xs font-medium text-primary-700">On-prem</span>
               </div>
             </div>
-            <div className="hidden xl:block absolute -left-4 bottom-1/4 transform -translate-x-1/2">
+            <div className="hidden xl:block absolute left-3 bottom-5">
               <div className="bg-white shadow-lg rounded-lg px-3 py-2 flex items-center gap-2">
                 <Lock className="w-4 h-4 text-accent-600" aria-hidden="true" />
                 <span className="text-xs font-medium text-primary-700">RBAC</span>
